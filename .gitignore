@@ -1,1 +1,5 @@
-[Obsoleto]/
+\[obsoleto\]
+.DS_Store
+*.wav
+*.asd
+
