@@ -26,14 +26,21 @@ class Rational
 	alias to_s inspect
 end
 
-class BasicObject
-	def instance_exec_nice(value_args, key_args, &block)
+class Object
+	def instance_exec_nice(value_or_key_args = nil, key_args = nil, &block)
+
+		if !value_or_key_args.nil? && value_or_key_args.is_a?(Hash)
+			key_args ||= {}
+			key_args = key_args.merge value_or_key_args
+			value_or_key_args = nil
+		end
+
 		if block.lambda?
-			if !value_args.nil? && !value_args.empty?
+			if !value_or_key_args.nil? && !value_or_key_args.empty?
 				if !key_args.nil? && !key_args.empty?
-					block.call *value_args, **key_args
+					block.call *value_or_key_args, **key_args
 				else
-					block.call *value_args
+					block.call *value_or_key_args
 				end
 			else
 				if !key_args.nil? && !key_args.empty?
@@ -43,11 +50,11 @@ class BasicObject
 				end
 			end
 		else
-			if !value_args.nil? && !value_args.empty?
+			if !value_or_key_args.nil? && !value_or_key_args.empty?
 				if !key_args.nil? && !key_args.empty?
-					instance_exec *value_args, **key_args, &block
+					instance_exec *value_or_key_args, **key_args, &block
 				else
-					instance_exec *value_args, &block
+					instance_exec *value_or_key_args, &block
 				end
 			else
 				if !key_args.nil? && !key_args.empty?
@@ -58,9 +65,7 @@ class BasicObject
 			end
 		end
 	end
-end
 
-class Object
 	def send_nice(method_name, *args, **key_args, &block)
 		if args && args.size > 0
 			if key_args && key_args.size > 0

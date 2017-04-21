@@ -2,16 +2,19 @@ require 'midi-message'
 
 class MIDIVoices
 
-	def initialize(sequencer:, output:, channels:)
+	attr_accessor :log
+
+	def initialize(sequencer:, output:, channels:, log: false)
 		@sequencer = sequencer
 		@output = output
 		@channels = channels
+		@do_log = log
 
 		reset
 	end
 
 	def reset
-		@voices = @channels.collect { |channel| MIDIVoice.new sequencer: @sequencer, output: @output, channel: channel }
+		@voices = @channels.collect { |channel| MIDIVoice.new sequencer: @sequencer, output: @output, channel: channel, log: @do_log }
 	end
 
 	def voice(index)
@@ -27,14 +30,15 @@ private
 
 class MIDIVoice
 
-	attr_accessor :name
+	attr_accessor :name, :do_log
 	attr_reader :sequencer, :output, :channel, :used_pitches, :tick_duration
 
-	def initialize(sequencer:, output:, channel:, name: nil)
+	def initialize(sequencer:, output:, channel:, name: nil, log: false)
 		@sequencer = sequencer
 		@output = output
 		@channel = channel
 		@name = name
+		@do_log = log
 
 		@tick_duration = Rational(1, @sequencer.ticks_per_bar)
 
@@ -61,48 +65,72 @@ class MIDIVoice
 		@fast_forward
 	end
 
-	def note(pitchvalue = nil, pitch: nil, velocity: 100, duration: nil, velocity_off: 100)
+	def note(pitchvalue = nil, pitch: nil, velocity: 63, duration: nil, velocity_off: 63)
 		pitch ||= pitchvalue
-		NoteOnControl.new self, pitch: pitch, velocity: velocity, duration: duration, velocity_off: velocity_off
+		NoteControl.new self, pitch: pitch, velocity: velocity, duration: duration, velocity_off: velocity_off
+	end
+
+	def note_off(pitchvalue = nil, pitch: nil, velocity_off: 63)
+		pitch ||= pitchvalue
+		NoteControl.new(self, pitch: pitch, velocity_off: velocity, play: false).note_off
+		nil
+	end
+
+	def log(msg)
+		@sequencer.log "voice #{name}: #{msg}" if @do_log
 	end
 
  	def to_s
  		"voice #{@name} output: #{@output} channel: #{@channel}"
  	end
 
-	class NoteOnControl
+ 	private
+
+	class NoteControl
 		
-		def initialize(voice, pitch:, velocity:, duration:, velocity_off:)
+		def initialize(voice, pitch:, velocity: nil, duration: nil, velocity_off: nil, play: true)
 			@voice = voice
 			@pitch = pitch
+			@velocity_off = velocity_off
 
 			@do_on_stop = []
 			@do_after = []
 
-			@voice.used_pitches[pitch][:counter] += 1
-			@voice.used_pitches[pitch][:velocity] = velocity
+			if play
+				if !silence?(@pitch)
+					@voice.used_pitches[pitch][:counter] += 1
+					@voice.used_pitches[pitch][:velocity] = velocity
 
-			msg = MIDIMessage::NoteOn.new(@voice.channel, pitch, velocity)
-			@voice.sequencer.log "#{@voice.name} #{msg.verbose_name}"
-			@voice.output.puts MIDIMessage::NoteOn.new(@voice.channel, pitch, velocity) if !@voice.fast_forward?
+					msg = MIDIMessage::NoteOn.new(@voice.channel, pitch, velocity)
+					@voice.log "#{msg.verbose_name} velocity: #{velocity} duration: #{duration}"
+					@voice.output.puts MIDIMessage::NoteOn.new(@voice.channel, pitch, velocity) if !@voice.fast_forward?
+				else
+					@voice.log "silence duration: #{duration}"
+				end
 
-			if duration
-				this = self
-				@voice.sequencer.wait duration - @voice.tick_duration do
-					this.note_off velocity: velocity_off
+				if duration
+					this = self
+					@voice.sequencer.wait duration - @voice.tick_duration do
+						this.note_off velocity_off: velocity_off
+					end
 				end
 			end
 
+			self
 		end
 
-		def note_off(velocity: 100)
-			@voice.used_pitches[@pitch][:counter] -= 1
-			@voice.used_pitches[@pitch][:counter] = 0 if @voice.used_pitches[@pitch][:counter] < 0
+		def note_off(velocity_off: nil)
+			velocity_off ||= @velocity_off
 
-			if @voice.used_pitches[@pitch][:counter] == 0
-				msg = MIDIMessage::NoteOff.new(@voice.channel, @pitch, velocity)
-				@voice.sequencer.log "#{@voice.name} #{msg.verbose_name}"
-				@voice.output.puts msg if !@voice.fast_forward?
+			if !silence?(@pitch)
+				@voice.used_pitches[@pitch][:counter] -= 1
+				@voice.used_pitches[@pitch][:counter] = 0 if @voice.used_pitches[@pitch][:counter] < 0
+
+				if @voice.used_pitches[@pitch][:counter] == 0
+					msg = MIDIMessage::NoteOff.new(@voice.channel, @pitch, velocity_off)
+					@voice.log "#{msg.verbose_name}"
+					@voice.output.puts msg if !@voice.fast_forward?
+				end
 			end
 
 			@do_on_stop.each do |do_on_stop|
@@ -113,14 +141,21 @@ class MIDIVoice
 				@voice.sequencer.wait @voice.tick_duration + do_after[:bars], &do_after[:block]
 			end
 
+			nil
+		end
+
+		def silence?(pitch)
+			pitch.nil? || pitch == :silence
 		end
 
 		def on_stop(&block)
 			@do_on_stop << block
+			nil
 		end
 
 		def after(bars = 0, &block)
 			@do_after << { bars: bars.rationalize, block: block }
+			nil
 		end
 	end
 end

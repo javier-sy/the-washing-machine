@@ -106,6 +106,8 @@ class Sequencer
 
 	def theme(theme, at:, context: nil, debug: false, **parameters)
 
+		context ||= @context
+
 		instance_parameters = {}
 		run_parameters = theme.instance_method(:run).parameters.collect {|p| [ p[1], nil ] }.compact.to_h
 		
@@ -120,7 +122,7 @@ class Sequencer
 			end
 		end
 
-		theme_instance = theme.new @context, **instance_parameters
+		theme_instance = theme.new context, **instance_parameters
 
 		self.at E(
 				at, 
@@ -138,6 +140,25 @@ class Sequencer
 				theme_instance.run **effective_parameters
 		end
 	end
+
+	def play(serie, mode: :wait, parameter: nil, context: nil, **mode_args, &block)
+
+		raise ArgumentError, "Sequencer.play: mode #{mode} not allowed. Only :wait or :at available" unless mode == :wait || mode == :at
+
+		parameter ||= :at if mode == :at
+		parameter ||= :duration if mode == :wait
+
+		context ||= @context
+
+		element = serie.next_value
+
+		if element
+			context.instance_exec_nice element, &block 
+			
+			context.send mode, element[parameter], context: context, **mode_args, 
+				&(Proc.new { play serie, mode: mode, parameter: parameter, context: context, **mode_args, &block })
+		end
+	end	
 
 	def _serie_at(serie_bar_position, context: nil, with: nil, debug:, &block)
 

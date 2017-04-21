@@ -20,6 +20,6 @@ end
 	@voices.fast_forward = enabled
 end
 
-@voices = MIDIVoices.new sequencer: @transport.sequencer, output: @output, channels: [0, 1, 2, 3]
+@voices = MIDIVoices.new sequencer: @transport.sequencer, output: @output, channels: [0, 1, 2, 3], log: true
 
 @transport.start
