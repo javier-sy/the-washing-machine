@@ -48,31 +48,47 @@ end
 
 module Series
 
-	def S(serie_or_array_or_value, value_is_array: false)
-		if serie_or_array_or_value.is_a?(Serie)
-			serie_or_array_or_value
+	def S(*values)
+		Serie.new BasicSerieFromArray.new(values)
+	end
 
-		elsif serie_or_array_or_value.is_a?(BasicSerie)
-			Serie.new serie_or_array_or_value
-		
-		elsif serie_or_array_or_value.is_a?(Array) && !value_is_array
-			Serie.new BasicSerieFromArray.new(serie_or_array_or_value)
-		
+	def FOR(from: 0, to:, step: 1)
+		Serie.new ForLoopBasicSerie.new(from: from, to: to, step: step)
+	end
+
+	def H(**series_hash)
+		Serie.new BasicSerieFromHash.new(series_hash)
+	end
+
+	def R(serie, times: nil, &condition_block)
+		if times || condition_block
+			Serie.new BasicSerieRepeater.new(serie, times: times, &condition_block)
 		else
-			Serie.new BasicSerieFromConstant.new(serie_or_array_or_value)
+			Serie.new BasicSerieInfiniteRepeater.new(serie)
 		end
 	end
 
-	def R(serie)
-		if serie.is_a?(BasicSerie)
-			Serie.new BasicSerieRepeater.new serie
-		else
-			raise ArgumentError, "expected BasicSerie: #{serie}"
-		end
+	def F(serie)
+		Serie.new BasicSerieFreezer.new(serie)
+	end
+
+	def REV(serie)
+		Serie.new BasicSerieReverser.new(serie)
+	end
+
+	def SEL(selector, *indexed_series, **hash_series)
+		Serie.new SelectorBasicSerie.new(selector, indexed_series, hash_series)
+	end
+
+	def SEL_F(selector, *indexed_series, **hash_series)
+		Serie.new SelectorFullSerieBasicSerie.new(selector, indexed_series, hash_series)
+	end
+
+	def SEQ(*series)
+		Serie.new SequenceBasicSerie.new(series)
 	end
 
 	def E(serie = nil, start: nil, with: nil, &block)
-
 		raise ArgumentError, "only serie or start can be defined" if serie && start
 
 		if start
@@ -84,9 +100,124 @@ module Series
 		end
 	end
 
-	def H(series_hash)
-		Serie.new BasicSerieFromHash.new(series_hash)
+	###
+	###
+	###
+
+	class SequenceBasicSerie
+		include BasicSerie
+	
+		def initialize(series)
+			@series = series
+			restart
+		end
+
+		def restart
+			@series.each { |serie| serie.restart }
+			@index = 0
+		end
+
+		def next_value
+			value = @series[@index].next_value
+
+			if value.nil?
+				@index += 1
+				value = next_value if @index < @series.size
+			
+			end
+
+			value
+		end
+
+		def infinite?
+			!!@series.find { |serie| serie.infinite? }
+		end
 	end
+
+	private_constant :SequenceBasicSerie
+
+	class SelectorBasicSerie
+		include BasicSerie
+	
+		def initialize(selector, indexed_series, hash_series)
+			@selector = selector
+
+			if indexed_series && !indexed_series.empty?
+				@series = indexed_series
+			elsif hash_series && !hash_series.empty?
+				@series = hash_series
+			end
+
+			restart
+		end
+
+		def restart
+			@selector.restart
+			@series.each { |serie| serie.restart } if @series.is_a? Array
+			@series.each { |key, serie| serie.restart } if @series.is_a? Hash
+		end
+
+		def next_value
+			value = nil
+
+			index_or_key = @selector.next_value
+
+			if !index_or_key.nil?
+				value = @series[index_or_key].next_value
+			end
+
+			value
+		end
+
+		def infinite?
+			!!( @selector.infinite? && !(@series.find { |serie| !serie.infinite? }) )
+		end
+	end
+
+	private_constant :SelectorBasicSerie
+
+	class SelectorFullSerieBasicSerie
+		include BasicSerie
+	
+		def initialize(selector, indexed_series, hash_series)
+			@selector = selector
+
+			if indexed_series && !indexed_series.empty?
+				@series = indexed_series
+			elsif hash_series && !hash_series.empty?
+				@series = hash_series
+			end
+
+			restart
+		end
+
+		def restart
+			@selector.restart
+			@series.each { |serie| serie.restart }
+		end
+
+		def next_value
+			value = nil
+
+			if !@index_or_key.nil?
+				value = @series[@index_or_key].next_value
+			end
+
+			if value.nil?
+				@index_or_key = @selector.next_value
+
+				value = next_value unless @index_or_key.nil?
+			end
+
+			value
+		end
+
+		def infinite?
+			!!(@selector.infinite? || (@series.find { |serie| serie.infinite? }))
+		end
+	end
+
+	private_constant :SelectorFullSerieBasicSerie
 
 	class BasicSerieInfiniteRepeater
 		include BasicSerie
@@ -107,6 +238,8 @@ module Series
 				@serie.restart
 				value = @serie.next_value
 			end
+
+			value
 		end
 
 		def infinite?
@@ -114,17 +247,18 @@ module Series
 		end
 	end	
 
+	private_constant :BasicSerieInfiniteRepeater
+
 	class BasicSerieRepeater
 		include BasicSerie
 
 		def initialize(serie, times: nil, &condition_block)
 			@serie = serie
 			
-			@times = times
-
 			@condition_block = condition_block
-			@condition_block ||= ->() { @count < @times } if @times
-			@condition_block ||= ->() { true }
+			@condition_block ||= ->() { @count < times } if times
+
+			raise ArgumentError, "times or condition block are mandatory" unless @condition_block
 
 			restart
 		end
@@ -150,8 +284,10 @@ module Series
 		end
 	end	
 
+	private_constant :BasicSerieRepeater
+
 	class ForLoopBasicSerie
-		def initialize(from: 0, to:, step: 1)
+		def initialize(from:, to:, step:)
 			@from = from
 			@to = to
 			@step = step
@@ -173,6 +309,8 @@ module Series
 			value
 		end
 	end
+
+	private_constant :ForLoopBasicSerie
 
 	class BasicSerieFreezer
 		def initialize(serie)
@@ -208,6 +346,8 @@ module Series
 		end
 	end
 
+	private_constant :BasicSerieFreezer
+
 	class BasicSerieReverser
 		include BasicSerie
 
@@ -239,6 +379,8 @@ module Series
 		end
 	end
 
+	private_constant :BasicSerieReverser
+
 	class BasicSerieFromArray
 		include BasicSerie
 
@@ -263,29 +405,7 @@ module Series
 		end
 	end
 
-	class BasicSerieFromConstant
-		include BasicSerie
-
-		def initialize(value)
-			@value = value
-			@index = 0
-		end
-
-		def restart
-			@index = 0
-		end
-
-		def next_value
-			if @index < 1
-				value = @value
-				@index += 1
-			else
-				value = nil
-			end
-
-			value
-		end
-	end
+	private_constant :BasicSerieFromArray
 
 	class BasicSerieFromAutoEvalBlockOnSeed
 		include BasicSerie
@@ -313,6 +433,8 @@ module Series
 			@current
 		end
 	end
+
+	private_constant :BasicSerieFromAutoEvalBlockOnSeed
 
 	class BasicSerieFromEvalBlockOnSerie
 		include BasicSerie
@@ -362,6 +484,8 @@ module Series
 		end
 	end
 
+	private_constant :BasicSerieFromEvalBlockOnSerie
+
 	class BasicSerieFromEvalBlock
 		include BasicSerie
 
@@ -386,6 +510,8 @@ module Series
 			value
 		end
 	end
+
+	private_constant :BasicSerieFromEvalBlock
 
 	class BasicSerieFromHash
 		include BasicSerie
@@ -423,5 +549,5 @@ module Series
 		end
 	end
 
-	private_constant :BasicSerieInfiniteRepeater, :BasicSerieFromArray, :BasicSerieFromConstant, :BasicSerieFromAutoEvalBlockOnSeed, :BasicSerieFromEvalBlockOnSerie, :BasicSerieFromEvalBlock, :BasicSerieFromHash
+	private_constant :BasicSerieFromHash
 end

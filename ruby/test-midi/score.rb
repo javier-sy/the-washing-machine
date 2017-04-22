@@ -57,17 +57,22 @@ def score
 				])
 
 			serie2 = H(
-				pitch: R(S([32,33, :silence, 35, 31])), 
-				duration: R(S([t(0,4), t(0,3), t(0,9)])), 
-				velocity: R(S([50, 60, 70])))
-			
+				pitch: R(S(32,33, :silence, 35, 31)), 
+				duration: R(S(t(0,4), t(0,3), t(0,9))), 
+				velocity: R(S(50, 60, 70)))
+
 			serie3 = H(
-				pitch: R(S([65,67,68,45, 59, :silence, 53])), 
-				duration: R(S([t(0,2), t(0,6), t(0,18)])), 
-				velocity: R(S([50, 60, 65, 70])))
+				pitch: R(S(65,67,68,45, 59, :silence, 53)), 
+				duration: R(S(t(0,2), t(0,6), t(0,18))), 
+				velocity: R(S(50, 60, 65, 70)))
 			
+			#serie4 = H( pitch: SEL(R(S(:a,:b,:c), times: 2), a: R(S(30,31,32), times: 2), b: R(S(50,51,52), times: 2), c: R(S(70,71,72), times: 2)), duration: R(S(t(0,8)) ) )
+			serie4 = H( pitch: SEQ(R(S(30,31,32), times: 2), R(S(50,51,52), times: 2), R(S(70,71,72), times: 2)), duration: R(S(t(0,8)) ) )
+
 			play(serie2) { |n| @voice_low[0].note **n }
 			play(serie3) { |n| @voice_low[1].note **n }
+			
+			play(serie4) { |n| @voice_low[0].note **n }
 		end
 	end
 end
