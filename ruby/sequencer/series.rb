@@ -14,7 +14,6 @@ module BasicSerie
 	def duplicate
 		Duplicate.duplicate(self)
 	end
-
 end
 
 class Serie
