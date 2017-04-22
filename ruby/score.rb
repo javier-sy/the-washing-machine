@@ -20,6 +20,8 @@ class Theme_1 < Theme
 	end
 
 	def run(till:)
+
+		puts "\nposition = #{position} till = #{till}"
 		move_pitch_and_return @voice, to: @pitch, till: till
 	end
 end
@@ -95,7 +97,7 @@ def score
 
 	ts.with @voices do |voices|
 
-		voices.restart
+		voices.reset
 
 		@voice_low = []
 		@voice_mid = []
@@ -157,8 +159,8 @@ def score
 
 		theme 	Theme_1, 
 		voice: @voice_mid[1], pitch: s(22),
-		at:		[4, 	t(6,4), 	t(8,4), 	t(9,0), 	t(9,8)],
-		till:	[t(5,0), t(7,5), 	t(8,14), 	t(9,6), 	t(9,13)]
+		at:		S(4, 	t(6,4), 	t(8,4), 	t(9,0), 	t(9,8)),
+		till:	S(t(5,0), t(7,5), 	t(8,14), 	t(9,6), 	t(9,13))
 
 		at t(9,15), debug: @debug_at do
 			move_vol @voice_high[0], to: 0, till: 11
@@ -208,15 +210,15 @@ def score
 			move_vol @voice_high[1], till: 22, to: -3
 		end
 
-		at 24, debug: @debug_at do
+		at 23, debug: @debug_at do
 			move_vol @voice_mid[0], till: 26, to: -6
 		end
 
-		at 28, debug: @debug_at do
+		at 27, debug: @debug_at do
 			move_vol @voice_mid[1], till: 30, to: -3
 		end
 
-		at 32, debug: @debug_at do
+		at 31, debug: @debug_at do
 			@voice_high[0].pitch = s(16)
 			move_vol @voice_high[0], till: 34, to: 0
 		end
@@ -288,12 +290,12 @@ def score
 			move_vol_twice @voice_low[0], to: 6, till: t(66,8), wait_duration: -t(2,8), to_2: -40, till_2: t(69,14)
 		end
 
-		# TODO revisar wait_duration:
+		# TODO revisar wait_duration
 		theme Theme_2,
-		at:		[ t(69,14),	t(82,11), 	t(90,11), 	t(103,7), 	t(111,7), 	t(124,3), 	t(132,3), 	t(145,0), 	t(152,15), 	t(165,12), 	t(178,1), 	t(186,0), 	t(195,12), 	t(203,11), 	t(213,6), 	t(221,5), 	t(231,1), 	t(239,0), 	t(248,11), 	t(256,11)], 
-		till: 	[ t(78,12),	t(87,11), 	t(99,10),	t(108,8),	t(120,6),	t(129,3),	t(141,3),	t(150,0),	t(161,15),	t(174,4),	t(183,1), 	t(191,15), 	t(200,13), 	t(209,10), 	t(218,7), 	t(227,4), 	t(236,2), 	t(244,15), 	t(253,12), 	t(262,14)],
+		at:		S(t(69,14),	t(82,11), 	t(90,11), 	t(103,7), 	t(111,7), 	t(124,3), 	t(132,3), 	t(145,0), 	t(152,15), 	t(165,12), 	t(178,1), 	t(186,0), 	t(195,12), 	t(203,11), 	t(213,6), 	t(221,5), 	t(231,1), 	t(239,0), 	t(248,11), 	t(256,11)), 
+		till: 	S(t(78,12),	t(87,11), 	t(99,10),	t(108,8),	t(120,6),	t(129,3),	t(141,3),	t(150,0),	t(161,15),	t(174,4),	t(183,1), 	t(191,15), 	t(200,13), 	t(209,10), 	t(218,7), 	t(227,4), 	t(236,2), 	t(244,15), 	t(253,12), 	t(262,14)),
 		wait_duration:
-			  	[-t(1,8),	-t(1,8),	-t(1,4),	-t(1,4),	-t(1,0),	-t(1,0),	-t(0,8),	-t(0,8),	-t(1,8),	-t(1,8),  	-t(1,8),  	-t(1,8),  	-t(1,8),  	-t(1,8),  	-t(1,8),  	-t(1,8),  	-t(1,8),  	-t(1,8),  	-t(1,8),  	-t(1,8)],
+			  	S(-t(1,8),	-t(1,8),	-t(1,4),	-t(1,4),	-t(1,0),	-t(1,0),	-t(0,8),	-t(0,8),	-t(1,8),	-t(1,8),  	-t(1,8),  	-t(1,8),  	-t(1,8),  	-t(1,8),  	-t(1,8),  	-t(1,8),  	-t(1,8),  	-t(1,8),  	-t(1,8),  	-t(1,8)),
 
 		voice_1: @voice_low[1], 
 		pitch_1: E { |i| s(-48 + 2 * (i % 5)) },
@@ -313,8 +315,8 @@ def score
 		end
 
 		theme Theme_3,
-		at:		[ t(82,7), 	t(94,13), 	t(102,12), 	t(112,7), 	t(120,6), 	t(130,2), 	t(138,1), 	t(147,13), 	t(155,11), 	t(165,7), t(173,6), t(183,2), t(191,1), t(200,12), t(208,11), t(218,7), t(226,6), t(236,1), t(244,1), t(253,12), t(261,11)],
-		till: 	[ t(90,15), t(99,13),	t(106,10),	t(117,7),	t(126,5),	t(135,3),	t(143,15),	t(152,13),	t(161,10),	t(170,7), t(179,4), t(188,3), t(197,0), t(205,13), t(214,11), t(223,8), t(232,5), t(241,3), t(250,0), t(258,13), t(267,11)],
+		at:		S(t(82,7), 	t(94,13), 	t(102,12), 	t(112,7), 	t(120,6), 	t(130,2), 	t(138,1), 	t(147,13), 	t(155,11), 	t(165,7), t(173,6), t(183,2), t(191,1), t(200,12), t(208,11), t(218,7), t(226,6), t(236,1), t(244,1), t(253,12), t(261,11)),
+		till: 	S(t(90,15), t(99,13),	t(106,10),	t(117,7),	t(126,5),	t(135,3),	t(143,15),	t(152,13),	t(161,10),	t(170,7), t(179,4), t(188,3), t(197,0), t(205,13), t(214,11), t(223,8), t(232,5), t(241,3), t(250,0), t(258,13), t(267,11)),
 		voice: @voice_high[1],
 		pitch: E { |i| s(22 - (Rational(i + 1, 3) % 5)) },
 		frequency: SIN(start_value: 28.0, steps: 11, period: 1, amplitude: 15.0, center: 28.0),
@@ -327,9 +329,12 @@ def score
 			@voice_high[2].input_channel = 2
 		end
 
+
+		# TODO Seguir anotando posiciones at y till...
+
 		theme Theme_3,
-		at:		[ t(118,9), t(128,5),	t(136,4),	t(145,15),	t(153,14),	t(162,10),	t(171,9),	t(181,4)],
-		till: 	[ t(124,7), t(133,5), 	t(142,2),	t(150,15),	t(159,12),	t(168,10),	t(177,7),	t(189,5)],
+		at:		S(t(118,9), t(128,5),	t(136,4),	t(145,15),	t(153,14),	t(162,10),	t(171,9),	t(181,4)),
+		till: 	S(t(124,7), t(133,5), 	t(142,2),	t(150,15),	t(159,12),	t(168,10),	t(177,7),	t(189,5)),
 		voice: @voice_high[2],
 		pitch: E { |i| s(18 - (Rational(i + 1, 3) % 3)) },
 		frequency: R(S(28)),
@@ -343,8 +348,8 @@ def score
 		end
 
 		theme Theme_3,
-		at:		[ t(149,9),	t(159,4),	t(167,4),	t(176,15),	t(194,10)],
-		till: 	[ t(155,7),	t(164,4),	t(173,2),	t(181,15),	t(199,10)],
+		at:		S(t(149,9),	t(159,4),	t(167,4),	t(176,15),	t(194,10)),
+		till: 	S(t(155,7),	t(164,4),	t(173,2),	t(181,15),	t(199,10)),
 		voice: @voice_high[3],
 		pitch: E { |i| s(14 - (Rational(i + 1, 3) % 7)) },
 		frequency: R(S(28)),

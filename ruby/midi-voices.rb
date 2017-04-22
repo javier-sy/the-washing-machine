@@ -1,5 +1,7 @@
 require 'midi-message'
 
+require_relative 'sequencer/tool'
+
 class MIDIVoices
 
 	attr_accessor :log
@@ -44,7 +46,7 @@ class MIDIVoice
 
 		@used_pitches = []
 		
-		(1..127).each do |pitch|
+		(0..127).each do |pitch|
 			@used_pitches[pitch] = { counter: 0, velocity: 0 }
 		end
 
@@ -53,7 +55,7 @@ class MIDIVoice
 
 	def fast_forward=(enabled)
 		if @fast_forward && !enabled
-			(1..127).each do |pitch|
+			(0..127).each do |pitch|
 				@output.puts MIDIMessage::NoteOn @channel, pitch, @used_pitches[pitch][:velocity] if @used_pitches[pitch][:counter] > 0
 			end
 		end
@@ -90,28 +92,38 @@ class MIDIVoice
 		
 		def initialize(voice, pitch:, velocity: nil, duration: nil, velocity_off: nil, play: true)
 			@voice = voice
-			@pitch = pitch
-			@velocity_off = velocity_off
+
+			@pitch = Tool::explode_ranges_on_array(Tool::grant_array(pitch))
+			@velocity = Tool::explode_ranges_on_array(Tool::grant_array(velocity))
+			@duration = Tool::explode_ranges_on_array(Tool::grant_array(duration))
+			@velocity_off = Tool::explode_ranges_on_array(Tool::grant_array(velocity_off))
 
 			@do_on_stop = []
 			@do_after = []
 
 			if play
-				if !silence?(@pitch)
-					@voice.used_pitches[pitch][:counter] += 1
-					@voice.used_pitches[pitch][:velocity] = velocity
+				@pitch.each_index do |i|
+					pitch = @pitch[i]
+					velocity = @velocity[i % @velocity.size]
+					duration = @duration[i % @duration.size]
+					velocity_off = @velocity_off[i % @velocity_off.size]
 
-					msg = MIDIMessage::NoteOn.new(@voice.channel, pitch, velocity)
-					@voice.log "#{msg.verbose_name} velocity: #{velocity} duration: #{duration}"
-					@voice.output.puts MIDIMessage::NoteOn.new(@voice.channel, pitch, velocity) if !@voice.fast_forward?
-				else
-					@voice.log "silence duration: #{duration}"
-				end
+					if !silence?(pitch)
+						@voice.used_pitches[pitch][:counter] += 1
+						@voice.used_pitches[pitch][:velocity] = velocity
 
-				if duration
-					this = self
-					@voice.sequencer.wait duration - @voice.tick_duration do
-						this.note_off velocity_off: velocity_off
+						msg = MIDIMessage::NoteOn.new(@voice.channel, pitch, velocity)
+						@voice.log "#{msg.verbose_name} velocity: #{velocity} duration: #{duration}"
+						@voice.output.puts MIDIMessage::NoteOn.new(@voice.channel, pitch, velocity) if !@voice.fast_forward?
+					else
+						@voice.log "silence duration: #{duration}"
+					end
+
+					if duration
+						this = self
+						@voice.sequencer.wait duration - @voice.tick_duration do
+							this.note_off velocity: velocity_off
+						end
 					end
 				end
 			end
@@ -119,17 +131,24 @@ class MIDIVoice
 			self
 		end
 
-		def note_off(velocity_off: nil)
-			velocity_off ||= @velocity_off
+		def note_off(velocity: nil)
+			velocity ||= @velocity_off
+			velocity = Tool::explode_ranges_on_array(Tool::grant_array(velocity))
 
-			if !silence?(@pitch)
-				@voice.used_pitches[@pitch][:counter] -= 1
-				@voice.used_pitches[@pitch][:counter] = 0 if @voice.used_pitches[@pitch][:counter] < 0
+			@pitch.each_index do |i|
+				pitch = @pitch[i]
+				duration = @duration[i % @duration.size]
+				velocity_off = velocity[i % velocity.size]
 
-				if @voice.used_pitches[@pitch][:counter] == 0
-					msg = MIDIMessage::NoteOff.new(@voice.channel, @pitch, velocity_off)
-					@voice.log "#{msg.verbose_name}"
-					@voice.output.puts msg if !@voice.fast_forward?
+				if !silence?(pitch)
+					@voice.used_pitches[pitch][:counter] -= 1
+					@voice.used_pitches[pitch][:counter] = 0 if @voice.used_pitches[pitch][:counter] < 0
+
+					if @voice.used_pitches[pitch][:counter] == 0
+						msg = MIDIMessage::NoteOff.new(@voice.channel, pitch, velocity)
+						@voice.log "#{msg.verbose_name}"
+						@voice.output.puts msg if !@voice.fast_forward?
+					end
 				end
 			end
 

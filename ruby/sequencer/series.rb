@@ -1,3 +1,5 @@
+require 'duplicate'
+
 module BasicSerie
 	def restart
 	end
@@ -8,6 +10,11 @@ module BasicSerie
 	def infinite?
 		false
 	end
+
+	def duplicate
+		Duplicate.duplicate(self)
+	end
+
 end
 
 class Serie
@@ -44,20 +51,48 @@ class Serie
 	def infinite?
 		@serie.infinite?
 	end
+
+	def as_array
+		throw 'Cannot convert to array an infinite serie' if @serie.infinite?
+
+		@serie.restart
+
+		array = []
+
+		while !(value = @serie.next_value).nil?
+			array << value
+		end
+
+		array
+	end
 end
 
 module Series
 
 	def S(*values)
-		Serie.new BasicSerieFromArray.new(values)
+		Serie.new BasicSerieFromArray.new(Tool::explode_ranges_on_array(values))
 	end
 
 	def FOR(from: 0, to:, step: 1)
 		Serie.new ForLoopBasicSerie.new(from: from, to: to, step: step)
 	end
 
+	def RND(*values, from: nil, to: nil, step: nil)
+		if !values.empty? && from.nil? && to.nil? && step.nil?
+			Serie.new RandomFromArrayBasicSerie.new(Tool::explode_ranges_on_array(values))
+		elsif values.empty?
+			Serie.new RandomNumberBasicSerie.new(from: from, to: to, step: step)
+		else
+			raise ArgumentError, "cannot use values and from:/to:/step: simultaneously"
+		end
+	end
+
 	def H(**series_hash)
 		Serie.new BasicSerieFromHash.new(series_hash)
+	end
+
+	def A(*series)
+		Serie.new BasicSerieFromArrayOfArrays.new(series)
 	end
 
 	def R(serie, times: nil, &condition_block)
@@ -123,7 +158,6 @@ module Series
 			if value.nil?
 				@index += 1
 				value = next_value if @index < @series.size
-			
 			end
 
 			value
@@ -300,17 +334,74 @@ module Series
 		end
 
 		def next_value
-			value = @value if @value
+			if @value
+				value = @value
+				@value = @value + @step
+			end
 
-			@value = @value + @step
-
-			@value = nil if @value > @to && @step.positive? || @value < @to && @step.negative?
+			@value = nil if @value && (@value > @to && @step.positive? || @value < @to && @step.negative?)
 
 			value
 		end
 	end
 
 	private_constant :ForLoopBasicSerie
+
+	class RandomNumberBasicSerie
+		def initialize(from: 0, to: nil, step: 1)
+			@from = from
+			@to = to
+			@step = step
+
+			if @step
+				@range = ((@to - @from) / @step).ceil
+			else
+				@range = @to - @from
+				@step = 1
+			end
+
+			restart
+		end
+
+		def restart
+			@random = Random.new
+		end
+
+		def next_value
+			value = @from + @random.rand(0..@range) * @step
+			if value > @to
+				value = next_value
+			end
+			value
+		end
+
+		def infinite?
+			true
+		end
+	end
+
+	private_constant :RandomNumberBasicSerie
+
+	class RandomFromArrayBasicSerie
+		def initialize(values)
+			@values = values
+			restart
+		end
+
+		def restart
+			@random = Random.new
+		end
+
+		def next_value
+			@values[@random.rand(0...@values.size)]
+		end
+
+		def infinite?
+			true
+		end
+	end
+
+	private_constant :RandomFromArrayBasicSerie
 
 	class BasicSerieFreezer
 		def initialize(serie)
@@ -517,29 +608,17 @@ module Series
 		include BasicSerie
 
 		def initialize(series)
-			@series = {}
-			
-			series.each do |key, serie|
-				if serie.is_a? Array
-					@series[key] = BasicSerieFromArray.new serie
-				elsif serie.is_a? Serie
-					@series[key] = serie
-				elsif serie.nil?
-					# ignorarlo
-				else
-					raise ArgumentError, "Serie element #{key} is not an Array nor a Serie: #{serie}"
-				end
-			end
+			@series = series
 		end
 
 		def restart
-			@series.each_value do |value|
-				value.restart
+			@series.each_value do |serie|
+				serie.restart
 			end
 		end
 
 		def next_value
-			value = @series.collect { |key, value| [ key, value.next_value ] }.to_h
+			value = @series.collect { |key, serie| puts "key #{key} has no serie" if serie.nil? ; [ key, serie.next_value ] }.to_h
 
 			if value.find { |key, value| value.nil? }
 				nil
@@ -550,4 +629,30 @@ module Series
 	end
 
 	private_constant :BasicSerieFromHash
+
+	class BasicSerieFromArrayOfSeries
+		include BasicSerie
+
+		def initialize(series)
+			@series = series
+		end
+
+		def restart
+			@series.each do |serie|
+				serie.restart
+			end
+		end
+
+		def next_value
+			value = @series.collect { |serie| serie.next_value }
+
+			if value.find { |value| value.nil? }
+				nil
+			else
+				value
+			end
+		end
+	end
+
+	private_constant :BasicSerieFromArrayOfSeries
 end

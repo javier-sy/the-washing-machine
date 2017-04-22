@@ -8,10 +8,10 @@ require_relative '../sequencer/transport'
 
 @transport = Transport.new @input, 4, 24, before_begin: ->{ puts "Begin..."; load "./score.rb"; score }, after_stop: ->{ puts "The End!" }
 
-@transport.sequencer.debug = false
+@transport.sequencer.debug = true
 
 @transport.sequencer.on_debug_at do
-	#log
+	log
 	#log "vols = #{@all_voices.get(:vol)}"
 	#log "pitches = #{@all_voices.get(:pitch)}"
 end 

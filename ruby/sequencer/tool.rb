@@ -18,6 +18,20 @@ module Tool
 		array
 	end
 
+	def self.explode_ranges_on_array(array)
+		r = []
+
+		array.each do |element|
+			if element.is_a? Range
+				element.to_a.each { |element| r << element }
+			else
+				r << element
+			end
+		end
+
+		r
+	end
+
 	def self.make_hash_key_parameters(proc, **hash)
 
 		parameters = proc.parameters.collect { |parameter| [ parameter[1], hash[parameter[1]] ] if parameter[0] == :key || parameter[0] == :keyreq }.compact.to_h

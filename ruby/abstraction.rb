@@ -6,12 +6,12 @@ def cc(note_length_in_32)
 	Rational(note_length_in_32, 32)
 end
 
-def t(bars, note_length_in_16)
-	bars + Rational(note_length_in_16, 16)
+def t(bars, note_length_in_16th = 0)
+	bars + Rational(note_length_in_16th, 16)
 end
 
-def tt(bars, note_length_in_32)
-	bars + Rational(note_length_in_32, 32)
+def tt(bars, note_length_in_32th = 0)
+	bars + Rational(note_length_in_32th, 32)
 end
 
 def s(semitones)

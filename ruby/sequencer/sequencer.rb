@@ -42,7 +42,7 @@ class Sequencer
 				context = command[:context]
 				context ||= @context
 
-				context.instance_exec_nice command[:value_parameters], **command[:key_parameters], &command[:block]
+				context.instance_exec_nice command[:value_parameters], command[:key_parameters], &command[:block]
 			end
 
 			@score.delete position_to_run
@@ -97,8 +97,8 @@ class Sequencer
 		if bar_position.is_a? Numeric
 			_numeric_at bar_position, context: context, with: with, debug: debug, &block
 		else
-			bar_position = ARRAY.of bar_position, repeat: false if bar_position.is_a? Array
-			with = ARRAY.of with, repeat: true if with.is_a? Array
+			bar_position = S(*bar_position) if bar_position.is_a? Array
+			with = R(S(*with)) if with.is_a? Array
 
 			_serie_at bar_position, context: context, with: with, debug: debug, &block
 		end
@@ -109,10 +109,12 @@ class Sequencer
 		context ||= @context
 
 		instance_parameters = {}
-		run_parameters = theme.instance_method(:run).parameters.collect {|p| [ p[1], nil ] }.compact.to_h
-		
-		at_position_method = theme.instance_method(:at_position)
+
 		run_method = theme.instance_method(:run)
+		at_position_method = theme.instance_method(:at_position)
+		
+		run_parameters = run_method.parameters.collect {|p| [ p[1], nil ] }.compact.to_h
+		run_parameters.delete :next_position
 		
 		parameters.each do |k, v|
 			if run_parameters.include? k
@@ -124,15 +126,16 @@ class Sequencer
 
 		theme_instance = theme.new context, **instance_parameters
 
-		self.at E(
-				at, 
-				with: H(run_parameters)) { 
+		with_serie_at = H(run_parameters)
+		with_serie_run = with_serie_at.duplicate
+
+		self.at E(at, with: with_serie_at) { 
 					|p, **parameters| 
 					effective_parameters = Tool::make_hash_key_parameters at_position_method, parameters
 					theme_instance.at_position p, **effective_parameters
 				}, 
 			context: context,
-			with: H(run_parameters), 
+			with: with_serie_run, 
 			debug: debug do
 				|**parameters|
 
@@ -175,7 +178,7 @@ class Sequencer
 			_numeric_at bar_position, context: context, next_bar_position: next_bar_position, with: with_value, debug: debug, &block
 
 			_numeric_at bar_position, context: context, debug: false do
-				_serie_at serie_bar_position, context: context, with: with, debug: false, &block
+				_serie_at serie_bar_position, context: context, with: with, debug: debug, &block
 			end
 		else
 			# serie finalizada
@@ -358,6 +361,13 @@ class Sequencer
 				elsif to
 					size.times do |i|
 						adjusted_value[i] = from[i] + step[i] * ((value[i] - from[i]) / step[i])
+
+						if rstep[i].nil?
+							puts "value = #{value}"
+							puts "rstep = #{rstep}"
+						end
+
+
 						value[i] += rstep[i]
 					end
 				end
