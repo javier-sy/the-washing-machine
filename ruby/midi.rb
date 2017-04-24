@@ -1,8 +1,7 @@
-require 'unimidi'
+require 'musa-dsl'
 require 'osc-ruby'
 
 require_relative 'voices'
-require_relative 'sequencer/transport'
 
 @input = UniMIDI::Input.all.select { |x| x.name == 'Apple Inc. Driver IAC' }[1]
 @output = OSC::Client.new 'localhost', 57120
@@ -16,7 +15,7 @@ require_relative 'sequencer/transport'
 	voices: 10, 
 	wsize_base: 1/5.0, wsize_semitones: 36)
 
-@transport = Transport.new @input, 4, 24, before_begin: ->{ puts "Begin..."; load "./score.rb"; score }, after_stop: ->{ puts "The End!" }
+@transport = Musa::Transport.new @input, 4, 24, before_begin: ->{ puts "Begin..."; load "./score.rb"; score }, after_stop: ->{ puts "The End!" }
 
 @transport.sequencer.debug = false
 

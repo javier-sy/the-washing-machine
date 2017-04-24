@@ -1,7 +1,8 @@
-require_relative '../music/music'
+require 'musa-dsl'
+
 require_relative '../abstraction'
 
-include Series
+include Musa::Series
 
 puts "Score loaded: file loaded"
 
@@ -9,7 +10,7 @@ def score
 	puts "Score loaded: defining score"
 
 
-	scale = Scales.get(:major).based_on_pitch 65
+	scale = Musa::Scales.get(:major).based_on_pitch 65
 
 	s = @transport.sequencer
 
@@ -83,7 +84,7 @@ def score
 			serie5 = H( pitch: RND(65, 66, 67, 70..73, 78), duration: R(S(t(0,8))))
 
 			serieX = R(FOR(from: 2, to: 5))
-			serie6 = H( pitch: E(RND(:I, :IV, :VI, :V, :III)) { |grade| Music::Chord(grade, scale: scale, grades: serieX.next_value).pitches }, duration: RND(from: t(0,2), to: t(1), step: t(0,1)) )
+			serie6 = H( pitch: E(RND(:I, :IV, :VI, :V, :III)) { |grade| Musa::Chord(grade, scale: scale, grades: serieX.next_value).pitches }, duration: RND(from: t(0,2), to: t(1), step: t(0,1)) )
 
 			serieZ = RND(from: t(0,2), to: t(1), step: t(0,1))
 

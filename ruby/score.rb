@@ -1,16 +1,15 @@
-require_relative 'music/music'
-require_relative 'abstraction'
+require 'musa-dsl'
 
-require_relative 'score-themes'
+require_relative 'abstraction'
 
 # Sincronización: En SuperCollider, DelayN.ar de entrada de 350 ms
 # Sincronización: En Live, Output MIDI Ruby Clock Sync Delay 170 ms
 
-include Series
+include Musa::Series
 
 puts "Score loaded: file loaded"
 
-class Theme_1 < Theme
+class Theme_1 < Musa::Theme
 	
 	def initialize(context, voice:, pitch:)
 		super context
@@ -26,7 +25,7 @@ class Theme_1 < Theme
 	end
 end
 
-class Theme_2 < Theme
+class Theme_2 < Musa::Theme
 	def initialize(context, voice_1:, voice_2:, pre_offset_1:, post_offset_1:, pre_offset_2:, post_offset_2:)
 		super context
 
@@ -58,7 +57,7 @@ class Theme_2 < Theme
 	end
 end
 
-class Theme_3 < Theme
+class Theme_3 < Musa::Theme
 	def initialize(context, voice:, pre_offset:, post_offset:)
 		super context
 

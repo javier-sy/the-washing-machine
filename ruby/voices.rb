@@ -1,5 +1,4 @@
-require 'midi-message'
-require 'osc-ruby'
+require 'musa-dsl'
 
 class Voices
 
