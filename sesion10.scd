@@ -96,7 +96,7 @@ La salida la envía a los canales 8/9, 10/11, 12/13, 14/15
 
 	var pitch = 2.0 ** pitchexp;
 
-	["RATE", "INDEX", index, "PITCHEXP", pitchexp, "PITCH", pitch].postln;
+	// ["RATE", "INDEX", index, "PITCHEXP", pitchexp, "PITCH", pitch].postln;
 
 	~rate[index].source = pitch;
 };
@@ -118,7 +118,7 @@ La salida la envía a los canales 8/9, 10/11, 12/13, 14/15
 ~mulcontroller = {
 	|index, val|
 
-	["MUL", "INDEX", index, "VAL", val].postln;
+	// ["MUL", "INDEX", index, "VAL", val].postln;
 
 	~mul[index].source = val.dbamp;
 };

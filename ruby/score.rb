@@ -19,8 +19,6 @@ class Theme_1 < Musa::Theme
 	end
 
 	def run(till:)
-
-		puts "\nposition = #{position} till = #{till}"
 		move_pitch_and_return @voice, to: @pitch, till: till
 	end
 end
@@ -58,65 +56,32 @@ class Theme_2 < Musa::Theme
 end
 
 class Theme_3 < Musa::Theme
-	def initialize(context, voice:, pre_offset:, post_offset:)
-		super context
 
+	@@OFFSET = t(1,0)
+
+	def initialize(context, voice:)
+		super context
 		@voice = voice
-		@pre_offset = pre_offset
-		@post_offset = post_offset
 	end
 
 	def at_position(p, **parameters)
-		p - @pre_offset
+		p - @@OFFSET
 	end
 
-	def run(pitch:, frequency:, till:, next_position:)
-
-		log "Theme_3: running till: #{till} pitch: #{pitch} frequency: #{frequency} next_position: #{next_position}"
-
-		original_pitch = @voice.pitch
-
-		move_vol_forth_and_back @voice, to: -3, till: (position + till) / 2, back_at: till + @post_offset
+	def run(at:, pitch:, mid_pitch_offset:, till:)
+		log "Theme_3: running at: #{at} till: #{till} pitch: #{pitch}"
 
 		@voice.pitch = pitch
-		m = move_pitch_sin @voice, frequency: frequency, amplitude: s(Rational(1,3)), till: till + @post_offset
 
-		m.after do
-			@voice.pitch = original_pitch
+		third = (till - at) / 3
+
+		move_vol_twice @voice, to: -3, till: at + third, wait_duration: third, to_2: -40, till_2: till + @@OFFSET
+
+		self.at at + third do
+			move_pitch_forth_and_back @voice, to: pitch + mid_pitch_offset, till: at + 2*third, back_at: at + 2*third + t(0,8)
 		end
 	end
 end
-
-class Theme_3_A < Musa::Theme
-	def initialize(context, voice:, pre_offset:, post_offset:)
-		super context
-
-		@voice = voice
-		@pre_offset = pre_offset
-		@post_offset = post_offset
-	end
-
-	def at_position(p, **parameters)
-		p - @pre_offset
-	end
-
-	def run(pitch:, frequency:, till:, next_position:)
-
-		log "Theme_3: running till: #{till} pitch: #{pitch} frequency: #{frequency} next_position: #{next_position}"
-
-		original_pitch = @voice.pitch
-
-		move_vol_forth_and_back @voice, to: -3, till: (position + till) / 2, back_at: till + @post_offset
-
-		@voice.pitch = pitch
-		m = move_pitch_sin @voice, frequency: frequency, amplitude: s(Rational(1,3)), till: till + @post_offset
-
-		m.after do
-			@voice.pitch = original_pitch
-		end
-	end
-end
-
 
 def score
 	puts "Score loaded: defining score"
@@ -347,11 +312,9 @@ def score
 		theme Theme_3,
 		at:		S(t(82,7), 	t(94,13), 	t(102,12), 	t(112,7), 	t(120,6), 	t(130,2), 	t(138,1), 	t(147,13), 	t(155,11), 	t(165,7), t(173,6), t(183,2), t(191,1), t(200,12), t(208,11), t(218,7), t(226,6), t(236,1), t(244,1), t(253,12), t(261,11),	t(271,7),	t(279,6)),
 		till: 	S(t(90,15), t(99,13),	t(106,10),	t(117,7),	t(126,5),	t(135,3),	t(143,15),	t(152,13),	t(161,10),	t(170,7), t(179,4), t(188,3), t(197,0), t(205,13), t(214,11), t(223,8), t(232,5), t(241,3), t(250,0), t(258,13), t(267,11),	t(276,8),	t(285,5)),
-		voice: @voice_high[1],
-		pitch: E { |i| s(22 - (Rational(i + 1, 3) % 5)) },
-		frequency: SIN(start_value: 28.0, steps: 11, period: 1, amplitude: 15.0, center: 28.0),
-		pre_offset: t(1,0),
-		post_offset: t(1,0)
+		voice: 	@voice_high[1],
+		pitch: 	E(R(S(4,3, 2, 1,-1))) { |i| s(22 - i) },
+		mid_pitch_offset: R(S(s(-3)))
 
 		at 118 do
 			log
@@ -362,11 +325,9 @@ def score
 		theme Theme_3,
 		at:		S(t(118,9), t(128,5),	t(136,4),	t(145,15),	t(153,14),	t(162,10),	t(171,9),	t(181,4),	t(189,4),	t(198,15),	t(206,14),	t(216,10),	t(224,9),	t(234,4),	t(242,3),	t(251,15),	t(259,14),	t(269,9),	t(277,9),	t(287,4),	t(295,3),	t(304,15),	t(312,14)),
 		till: 	S(t(124,7), t(133,5), 	t(142,2),	t(150,15),	t(159,12),	t(168,10),	t(177,7),	t(186,5),	t(195,3),	t(203,15),	t(212,13),	t(221,11),	t(230,8),	t(239,5),	t(248,3),	t(256,16),	t(265,13), 	t(274,10),	t(283,8),	t(292,5),	t(301,3),	t(309,16),	t(318,13)),
-		voice: @voice_high[2],
-		pitch: E { |i| s(18 - (Rational(i + 1, 3) % 3)) },
-		frequency: R(S(28)),
-		pre_offset: t(1,0),
-		post_offset: t(1,0)
+		voice: 	@voice_mid[2],
+		pitch: 	E(R(S(4,3,2,1,-1))) { |i| s(18 - i) },
+		mid_pitch_offset: R(S(s(-2)))
 
 		at 149 do
 			log
@@ -377,10 +338,8 @@ def score
 		theme Theme_3,
 		at:		S(t(149,9),	t(159,4),	t(167,4),	t(176,15),	t(194,10), 	t(202,9), 	t(212,4), 	t(220,3), 	t(229,15), 	t(237,14), 	t(247,10), 	t(255,4), 	t(265,4), 	t(273,3), 	t(282,15),	t(290,14),	t(300,9),	t(308,9),	t(318,4),	t(326,3),	t(353,15),	t(343,14)),
 		till: 	S(t(155,7),	t(164,4),	t(173,2),	t(181,15),	t(199,11), 	t(208,7), 	t(217,5), 	t(226,2), 	t(234,16), 	t(243,13), 	t(252,10), 	t(261,8), 	t(270,5), 	t(279,2), 	t(287,16),	t(296,13),	t(305,10),	t(314,7),	t(323,5),	t(332,13),	t(340,16),	t(349,13)),
-		voice: @voice_high[3],
-		pitch: E { |i| s(14 - (Rational(i + 1, 3) % 7)) },
-		frequency: R(S(28)),
-		pre_offset: t(1,0),
-		post_offset: t(1,0)
+		voice: 	@voice_high[3],
+		pitch: 	E(R(S(4,3,2,1,-1))) { |i| s(14 - i) },
+		mid_pitch_offset: R(S(s(-1)))
 	end
 end
