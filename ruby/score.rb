@@ -303,6 +303,13 @@ def score
 		pre_offset_2: t(0,0),
 		post_offset_2: t(0,4)
 
+
+		# poner 4 voces: B, C, D, E; 1º B en coincidencia con Corpus metal de A; luego C en oposición a B, luego D y E entre B y C
+		# al comenzar C (quizás D y E) desactivar en Theme 2 la parte sin corpus
+
+		# recortar (A) B C D E
+		# recortar centrifugado
+
 		at 82 do
 			log
 			@voice_mid[1].input_channel = 1
