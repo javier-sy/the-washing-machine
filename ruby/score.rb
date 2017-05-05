@@ -59,17 +59,20 @@ class Theme_3 < Musa::Theme
 
 	@@OFFSET = t(1,0)
 
-	def initialize(context, voice:)
+	def initialize(context, voice:, voice_2:)
 		super context
 		@voice = voice
+		@voice_2 = voice_2
 	end
 
 	def at_position(p, **parameters)
 		p - @@OFFSET
 	end
 
-	def run(at:, pitch:, mid_pitch_offset:, till:)
-		log "Theme_3: running at: #{at} till: #{till} pitch: #{pitch}"
+	def run(at:, pitch:, mid_pitch_offset:, till:, next_position:)
+		log "Theme_3: running at: #{at} till: #{till} pitch: #{pitch} next_position: #{next_position}"
+
+		offset = (next_position - position)/6
 
 		@voice.pitch = pitch
 
@@ -79,6 +82,14 @@ class Theme_3 < Musa::Theme
 
 		self.at at + third do
 			move_pitch_forth_and_back @voice, to: pitch + mid_pitch_offset, till: at + 2*third, back_at: at + 2*third + t(0,8)
+			#move_pitch_and_return @voice, to: pitch + mid_pitch_offset, till: at + 2*third, return_at: at + 2*third + t(0,8)
+		end
+
+		if next_position
+			self.at till do
+				@voice_2.pitch = s(24)
+				move_vol_twice @voice_2, to: 15, till: till + 2*offset, wait_till: next_position, to_2: -40, till_2: next_position + @@OFFSET/2
+			end
 		end
 	end
 end
@@ -310,24 +321,35 @@ def score
 
 		at 80 do
 			log
-			@voice_mid[1].input_channel = 2
 
-			@voice_high[1].input_channel = 1
+			@voice_mid[0].input_channel = 1
+			@voice_high[0].input_channel = 1
+
+			@voice_mid[1].input_channel = 2
+			@voice_high[1].input_channel = 2
+
+			@voice_mid[2].input_channel = 3
 			@voice_high[2].input_channel = 3
+
+			@voice_mid[3].input_channel = 4
 			@voice_high[3].input_channel = 4
 		end
+
+		# TODO en theme3 poner algo más entre medio de lo silencios
 
 		theme Theme_3,
 		at:		S(	t(82,7), 	t(94,13), 	t(102,12), 	t(112,7), 	t(120,6), 	t(130,2), 	t(138,1), 	t(147,13), 	t(155,11), 	t(165,7), t(173,6), t(183,2)),
 		till: 	S(	t(90,16), 	t(99,13),	t(106,10),	t(117,7),	t(126,5),	t(135,3),	t(143,15),	t(152,13),	t(161,10),	t(170,7), t(179,4), t(188,3)),
-		voice: 	@voice_high[1],
+		voice: 	@voice_high[0],
+		voice_2: @voice_mid[0],
 		pitch: 	E(R(S(4,3, 2, 1,-1))) { |i| s(22 - i) },
-		mid_pitch_offset: R(S(s(-3)))
+		mid_pitch_offset: R(S(s(-2)))
 
 		theme Theme_3,
 		at:  	S(	t(116,2),	t(125,14), 	t(133,13), 	t(143,8), 	t(151,7), 	t(160,3), 	t(169,2), 	t(178,13)),
 		till: 	S(	t(122,1),	t(130,13), 	t(139,11), 	t(148,8), 	t(157,5), 	t(166,3), 	t(175,0), 	t(183,14)),
-		voice: 	@voice_mid[1],
+		voice: 	@voice_high[1],
+		voice_2: @voice_mid[1],
 		pitch: 	E(R(S(4,3,2,1,-1))) { |i| s(18 - i) },
 		mid_pitch_offset: R(S(s(-2)))
 
@@ -335,6 +357,7 @@ def score
 		at:		S(	t(149,8),	t(159,3),	t(167,3),	t(176,14)),
 		till: 	S(	t(155,7),	t(164,3),	t(173,1),	t(181,14)),
 		voice: 	@voice_high[2],
+		voice_2: @voice_mid[2],
 		pitch: 	E(R(S(4,3,2,1,-1))) { |i| s(14 - i) },
 		mid_pitch_offset: R(S(s(-1)))
 
@@ -342,8 +365,9 @@ def score
 		at:		S(	t(153,10),	t(163,5), 	t(171,5), 	t(181,0)),
 		till: 	S(	t(159,9), 	t(168,5), 	t(177,3), 	t(186,0)),
 		voice: 	@voice_high[3],
+		voice_2: @voice_mid[3],
 		pitch: 	E(R(S(4,3,2,1,-1))) { |i| s(11 - i) },
-		mid_pitch_offset: R(S(s(-1)))
+		mid_pitch_offset: R(S(s(-5)))
 
 		# TODO recortar centrifugado
 
