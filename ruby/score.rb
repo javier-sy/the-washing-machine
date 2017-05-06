@@ -72,7 +72,6 @@ class Theme_3 < Musa::Theme
 	def run(at:, pitch:, mid_pitch_offset:, till:, next_position:)
 		log "Theme_3: running at: #{at} till: #{till} pitch: #{pitch} next_position: #{next_position}"
 
-		offset = (next_position - position)/6
 
 		@voice.pitch = pitch
 
@@ -86,9 +85,10 @@ class Theme_3 < Musa::Theme
 		end
 
 		if next_position
-			self.at till do
+			delta = (next_position - till)/8
+			self.at till - delta do
 				@voice_2.pitch = s(24)
-				move_vol_twice @voice_2, to: 15, till: till + 2*offset, wait_till: next_position, to_2: -40, till_2: next_position + @@OFFSET/2
+				move_vol_twice @voice_2, to: 15, till: till + 6*delta, wait_till: next_position + delta, to_2: -40, till_2: next_position + delta * 2
 			end
 		end
 	end
