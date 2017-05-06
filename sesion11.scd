@@ -71,8 +71,6 @@ La salida la envía a los canales 8/9, 10/11, 12/13, 14/15
 	~channels do: { | i | ~ratecontroller.(index: i, pitchexp: 0); };
 	~channels do: { | i | ~mulcontroller.(index: i, val: 0); };
 
-	//Task({ ~channels do: { | i | ~wsizecontroller.(index: i, wsize: 10); 0.2.sleep; };}).start;
-
 	["INIT", "VOICES", voices].postln;
 };
 

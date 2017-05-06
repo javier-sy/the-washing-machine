@@ -70,8 +70,7 @@ class Theme_3 < Musa::Theme
 	end
 
 	def run(at:, pitch:, mid_pitch_offset:, till:, next_position:)
-		log "Theme_3: running at: #{at} till: #{till} pitch: #{pitch} next_position: #{next_position}"
-
+		log "Theme_3: running at: #{at} till: #{till} pitch: #{pitch} mid_pitch_offset: #{mid_pitch_offset} next_position: #{next_position}"
 
 		@voice.pitch = pitch
 
@@ -87,8 +86,8 @@ class Theme_3 < Musa::Theme
 		if next_position
 			delta = (next_position - till)/8
 			self.at till - delta do
-				@voice_2.pitch = s(24)
-				move_vol_twice @voice_2, to: 15, till: till + 6*delta, wait_till: next_position + delta, to_2: -40, till_2: next_position + delta * 2
+				@voice_2.pitch = s(24) + mid_pitch_offset
+				move_vol_twice @voice_2, to: 15, till: next_position - delta, wait_till: next_position + 2*delta, to_2: -40, till_2: next_position + delta*3
 			end
 		end
 	end
@@ -339,11 +338,11 @@ def score
 
 		theme Theme_3,
 		at:		S(	t(82,7), 	t(94,13), 	t(102,12), 	t(112,7), 	t(120,6), 	t(130,2), 	t(138,1), 	t(147,13), 	t(155,11), 	t(165,7), t(173,6), t(183,2)),
-		till: 	S(	t(90,16), 	t(99,13),	t(106,10),	t(117,7),	t(126,5),	t(135,3),	t(143,15),	t(152,13),	t(161,10),	t(170,7), t(179,4), t(188,3)),
+		till: 	S(	t(90,16), 	t(99,13),	t(108,11),	t(117,7),	t(126,5),	t(135,3),	t(143,15),	t(152,13),	t(161,10),	t(170,7), t(179,4), t(188,3)),
 		voice: 	@voice_high[0],
 		voice_2: @voice_mid[0],
 		pitch: 	E(R(S(4,3, 2, 1,-1))) { |i| s(22 - i) },
-		mid_pitch_offset: R(S(s(-2)))
+		mid_pitch_offset: R(S(s(-2), s(-1), s(-1)))
 
 		theme Theme_3,
 		at:  	S(	t(116,2),	t(125,14), 	t(133,13), 	t(143,8), 	t(151,7), 	t(160,3), 	t(169,2), 	t(178,13)),
@@ -351,7 +350,7 @@ def score
 		voice: 	@voice_high[1],
 		voice_2: @voice_mid[1],
 		pitch: 	E(R(S(4,3,2,1,-1))) { |i| s(18 - i) },
-		mid_pitch_offset: R(S(s(-2)))
+		mid_pitch_offset: R(S(s(-2), s(-1), s(0), s(-1)))
 
 		theme Theme_3,
 		at:		S(	t(149,8),	t(159,3),	t(167,3),	t(176,14)),
@@ -359,15 +358,15 @@ def score
 		voice: 	@voice_high[2],
 		voice_2: @voice_mid[2],
 		pitch: 	E(R(S(4,3,2,1,-1))) { |i| s(14 - i) },
-		mid_pitch_offset: R(S(s(-1)))
+		mid_pitch_offset: R(S(s(-1), s(-3)))
 
 		theme Theme_3,
 		at:		S(	t(153,10),	t(163,5), 	t(171,5), 	t(181,0)),
 		till: 	S(	t(159,9), 	t(168,5), 	t(177,3), 	t(186,0)),
 		voice: 	@voice_high[3],
 		voice_2: @voice_mid[3],
-		pitch: 	E(R(S(4,3,2,1,-1))) { |i| s(11 - i) },
-		mid_pitch_offset: R(S(s(-5)))
+		pitch: 	E(R(REV(S(3,2,1,-1)))) { |i| s(16 - i) },
+		mid_pitch_offset: R(S(s(-5), s(-3), s(-1)))
 
 		# TODO recortar centrifugado
 
