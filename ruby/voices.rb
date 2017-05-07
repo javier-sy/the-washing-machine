@@ -105,12 +105,6 @@ class Voice
 
 		self.input_channel = input_channel
 		self.output_channel = output_channel
-
-		self.vol = 0
-		self.wsize = 0
-		self.pitch = 0
-
-		self
 	end
 
 	def fast_forward=(enabled)

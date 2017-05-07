@@ -39,16 +39,16 @@ class Theme_2 < Musa::Theme
 		p - @pre_offset_1
 	end
 
-	def run(till:, wait_duration:, pitch_1:, pitch_2:, next_position:)
-		log "Theme_2: running till #{till} pitch_1: #{pitch_1} pitch_2: #{pitch_2} next_position: #{next_position}"
+	def run(till:, wait_duration:, pitch_1:, pitch_2:, enable_2:, next_position:)
+		log "Theme_2: running till #{till} pitch_1: #{pitch_1} pitch_2: #{pitch_2} enable_2: #{enable_2} next_position: #{next_position}"
 
-		@voice_1.pitch = pitch_1
+		@voice_1.pitch = s(pitch_1)
 		
 		move_vol_twice @voice_1, to: -15, duration: t(1,14), wait_duration: wait_duration, to_2: -40, till_2: till + @post_offset_1
 
-		if next_position
+		if next_position && enable_2
 			at till - @pre_offset_2, debug: @debug_at do
-				@voice_2.pitch = pitch_2
+				@voice_2.pitch = s(pitch_2)
 				move_vol_twice @voice_2, to: 6, duration: t(1,0), wait_duration: wait_duration, to_2: -40, till_2: next_position + @pre_offset_1 + @post_offset_2
 			end
 		end
@@ -69,24 +69,23 @@ class Theme_3 < Musa::Theme
 		p - @@OFFSET
 	end
 
-	def run(at:, pitch:, mid_pitch_offset:, till:, next_position:)
-		log "Theme_3: running at: #{at} till: #{till} pitch: #{pitch} mid_pitch_offset: #{mid_pitch_offset} next_position: #{next_position}"
+	def run(at:, pitch:, pitch_2:, till:, next_position:)
+		log "Theme_3: running at: #{at} till: #{till} pitch: #{pitch} pitch_2: #{pitch_2} next_position: #{next_position}"
 
-		@voice.pitch = pitch
+		@voice.pitch = s(24-pitch)
 
 		third = (till - at) / 3
 
 		move_vol_twice @voice, to: -3, till: at + third, wait_duration: third, to_2: -40, till_2: till + @@OFFSET
 
 		self.at at + third do
-			move_pitch_forth_and_back @voice, to: pitch + mid_pitch_offset, till: at + 2*third, back_at: at + 2*third + t(0,8)
-			#move_pitch_and_return @voice, to: pitch + mid_pitch_offset, till: at + 2*third, return_at: at + 2*third + t(0,8)
+			move_pitch_forth_and_back @voice, to:  s(24 - pitch_2), till: at + 2*third, back_at: at + 2*third + t(0,8)
 		end
 
 		if next_position
 			delta = (next_position - till)/8
 			self.at till - delta do
-				@voice_2.pitch = s(24) + mid_pitch_offset
+				@voice_2.pitch = s(24 - pitch_2)
 				move_vol_twice @voice_2, to: 15, till: next_position - delta, wait_till: next_position + 2*delta, to_2: -40, till_2: next_position + delta*3
 			end
 		end
@@ -303,20 +302,16 @@ def score
 			  	S(-t(1,8),	-t(1,8),	-t(1,4),	-t(1,4),	-t(1,0),	-t(1,0),	-t(0,8),	-t(0,8),	-t(1,8),	-t(1,8),  	-t(1,8)),
 
 		voice_1: @voice_low[1], 
-		pitch_1: E { |i| s(-48 + 2 * (i % 5)) },
+		pitch_1: R(S(-48, -46, -44, -42)),
 
 		voice_2: @voice_low[0],
-		pitch_2: E { |i| s(24 - (Rational(i + 1, 3) % 5)) },
+		pitch_2: R(S(24, 23, 22, 21)),
+		enable_2: SEQ(R(S(true), times: 3), R(S(false))),
 
 		pre_offset_1: t(1,8),
 		post_offset_1: t(0,8),
 		pre_offset_2: t(0,0),
 		post_offset_2: t(0,4)
-
-
-		# poner 4 voces: B, C, D, E; 1º B en coincidencia con Corpus metal de A; luego C en oposición a B, luego D y E entre B y C
-		# al comenzar C (quizás D y E) desactivar en Theme 2 la parte sin corpus
-
 
 		at 80 do
 			log
@@ -334,39 +329,37 @@ def score
 			@voice_high[3].input_channel = 4
 		end
 
-		# TODO en theme3 poner algo más entre medio de lo silencios
-
 		theme Theme_3,
-		at:		S(	t(82,7), 	t(94,13), 	t(102,12), 	t(112,7), 	t(120,6), 	t(130,2), 	t(138,1), 	t(147,13), 	t(155,11), 	t(165,7), t(173,6), t(183,2)),
-		till: 	S(	t(90,16), 	t(99,13),	t(108,11),	t(117,7),	t(126,5),	t(135,3),	t(143,15),	t(152,13),	t(161,10),	t(170,7), t(179,4), t(188,3)),
+		at:		S(	t(82,7), 	t(94,13), 	t(102,12), 	t(112,7), 	t(120,6), 	t(130,2), 	t(138,1), 	t(147,13), 	t(155,11), 	t(165,7),	t(173,6),	t(183,2)),
+		till: 	S(	t(90,16), 	t(99,13),	t(108,11),	t(117,7),	t(126,5),	t(135,3),	t(143,15),	t(152,13),	t(161,10),	t(170,7),	t(179,4),	t(188,3)),
 		voice: 	@voice_high[0],
 		voice_2: @voice_mid[0],
-		pitch: 	E(R(S(4,3, 2, 1,-1))) { |i| s(22 - i) },
-		mid_pitch_offset: R(S(s(-2), s(-1), s(-1)))
+		pitch: 	 R(S(2, 1, 0)),
+		pitch_2: R(S(5, 7, 3, 0, 4, 1))
 
 		theme Theme_3,
-		at:  	S(	t(116,2),	t(125,14), 	t(133,13), 	t(143,8), 	t(151,7), 	t(160,3), 	t(169,2), 	t(178,13)),
-		till: 	S(	t(122,1),	t(130,13), 	t(139,11), 	t(148,8), 	t(157,5), 	t(166,3), 	t(175,0), 	t(183,14)),
+		at:  	S(	t(90,8),	t(98,7),	t(108,1),	t(116,2),	t(125,14), 	t(133,13), 	t(143,8), 	t(151,7), 	t(160,3), 	t(169,2), 	t(178,13),	t(186,12)),
+		till: 	S(	t(95,13),	t(104,6),	t(113,2),	t(122,1),	t(130,13), 	t(139,11), 	t(148,8), 	t(157,5), 	t(166,3), 	t(175,0), 	t(183,14),	t(192,12)),
 		voice: 	@voice_high[1],
 		voice_2: @voice_mid[1],
-		pitch: 	E(R(S(4,3,2,1,-1))) { |i| s(18 - i) },
-		mid_pitch_offset: R(S(s(-2), s(-1), s(0), s(-1)))
+		pitch: 	 R(S(4, 3, 2, 1, 0)),
+		pitch_2: R(S(3, 1, 0, 1))
 
 		theme Theme_3,
-		at:		S(	t(149,8),	t(159,3),	t(167,3),	t(176,14)),
-		till: 	S(	t(155,7),	t(164,3),	t(173,1),	t(181,14)),
+		at:		S(	t(96,8),	t(106,3),	t(114,2),	t(123,14),	t(131,13),	t(141,8),	t(149,8),	t(159,3),	t(167,3),	t(176,14)),
+		till: 	S(	t(102,7),	t(111,4),	t(120,2),	t(128,15),	t(137,12),	t(146,10),	t(155,7),	t(164,3),	t(173,1),	t(181,14)),
 		voice: 	@voice_high[2],
 		voice_2: @voice_mid[2],
-		pitch: 	E(R(S(4,3,2,1,-1))) { |i| s(14 - i) },
-		mid_pitch_offset: R(S(s(-1), s(-3)))
+		pitch: 	 R(S(3, 2, 1, 0)),
+		pitch_2: R(S(1, 3))
 
 		theme Theme_3,
-		at:		S(	t(153,10),	t(163,5), 	t(171,5), 	t(181,0)),
-		till: 	S(	t(159,9), 	t(168,5), 	t(177,3), 	t(186,0)),
+		at:		S(	t(100,10),	t(110,5),	t(118,4),	t(128,0),	t(135,15),	t(145,11),	t(153,10),	t(163,5), 	t(171,5), 	t(181,0)),
+		till: 	S(	t(106,9),	t(115,6),	t(124,4),	t(133,1),	t(141,14),	t(150,12),	t(159,9), 	t(168,5), 	t(177,3), 	t(186,0)),
 		voice: 	@voice_high[3],
 		voice_2: @voice_mid[3],
-		pitch: 	E(R(REV(S(3,2,1,-1)))) { |i| s(16 - i) },
-		mid_pitch_offset: R(S(s(-5), s(-3), s(-1)))
+		pitch: 	 R(S(0, 1)),
+		pitch_2: R(S(0, 3, 1))
 
 		# TODO recortar centrifugado
 
