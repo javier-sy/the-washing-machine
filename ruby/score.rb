@@ -135,6 +135,8 @@ def score
 
 		@all_voices.apply :vol=, -40
 		@all_voices.apply :pitch=, 0
+
+		@scale = Musa::Scales.get(:major).based_on_pitch 0
 	end
 
 	ts.with do
@@ -327,39 +329,47 @@ def score
 
 			@voice_mid[3].input_channel = 4
 			@voice_high[3].input_channel = 4
+
+			chords = E(S(:II, :III, :VI, :IV, :III, :VI, :II, :III, :VI, :IV, :V, :I)) { 
+				|grade| chord = Musa::Chord(grade, scale: @scale, grades: 4).pitches; log "chord grade #{grade} = #{chord}"; chord }
+
+			hash_chords = HH(chords, keys: [:a, :b, :c, :d])
+
+			@series = SPLIT hash_chords
+			@series_2 = SPLIT SHIFT(hash_chords.duplicate, shift: -1)
+
+			theme Theme_3,
+			at:		S(	t(82,7), 	t(94,13), 	t(102,12), 	t(112,7), 	t(120,6), 	t(130,2), 	t(138,1), 	t(147,13), 	t(155,11), 	t(165,7),	t(173,6),	t(183,2)),
+			till: 	S(	t(90,16), 	t(99,13),	t(108,11),	t(117,7),	t(126,5),	t(135,3),	t(143,15),	t(152,13),	t(161,10),	t(170,7),	t(179,4),	t(188,3)),
+			voice: 	@voice_high[0],
+			voice_2: @voice_mid[0],
+			pitch: 	 @series[:d], # R(S(2, 1, 0)),
+			pitch_2: @series_2[:d] # R(S(5, 7, 3, 0, 4, 1))
+
+			theme Theme_3,
+			at:  	S(	t(90,8),	t(98,7),	t(108,1),	t(116,2),	t(125,14), 	t(133,13), 	t(143,8), 	t(151,7), 	t(160,3), 	t(169,2), 	t(178,13),	t(186,12)),
+			till: 	S(	t(95,13),	t(104,6),	t(113,2),	t(122,1),	t(130,13), 	t(139,11), 	t(148,8), 	t(157,5), 	t(166,3), 	t(175,0), 	t(183,14),	t(192,12)),
+			voice: 	@voice_high[1],
+			voice_2: @voice_mid[1],
+			pitch: 	 @series[:c], # R(S(4, 3, 2, 1, 0)),
+			pitch_2: @series_2[:c] # R(S(3, 1, 0, 1))
+
+			theme Theme_3,
+			at:		S(	t(96,8),	t(106,3),	t(114,2),	t(123,14),	t(131,13),	t(141,8),	t(149,8),	t(159,3),	t(167,3),	t(176,14)),
+			till: 	S(	t(102,7),	t(111,4),	t(120,2),	t(128,15),	t(137,12),	t(146,10),	t(155,7),	t(164,3),	t(173,1),	t(181,14)),
+			voice: 	@voice_high[2],
+			voice_2: @voice_mid[2],
+			pitch: 	 @series[:b], # R(S(3, 2, 1, 0)),
+			pitch_2: @series_2[:b] # R(S(1, 3))
+
+			theme Theme_3,
+			at:		S(	t(100,10),	t(110,5),	t(118,4),	t(128,0),	t(135,15),	t(145,11),	t(153,10),	t(163,5), 	t(171,5), 	t(181,0)),
+			till: 	S(	t(106,9),	t(115,6),	t(124,4),	t(133,1),	t(141,14),	t(150,12),	t(159,9), 	t(168,5), 	t(177,3), 	t(186,0)),
+			voice: 	@voice_high[3],
+			voice_2: @voice_mid[3],
+			pitch: 	 @series[:a], # R(S(0, 1)),
+			pitch_2: @series_2[:a] # R(S(0, 3, 1))
 		end
-
-		theme Theme_3,
-		at:		S(	t(82,7), 	t(94,13), 	t(102,12), 	t(112,7), 	t(120,6), 	t(130,2), 	t(138,1), 	t(147,13), 	t(155,11), 	t(165,7),	t(173,6),	t(183,2)),
-		till: 	S(	t(90,16), 	t(99,13),	t(108,11),	t(117,7),	t(126,5),	t(135,3),	t(143,15),	t(152,13),	t(161,10),	t(170,7),	t(179,4),	t(188,3)),
-		voice: 	@voice_high[0],
-		voice_2: @voice_mid[0],
-		pitch: 	 R(S(2, 1, 0)),
-		pitch_2: R(S(5, 7, 3, 0, 4, 1))
-
-		theme Theme_3,
-		at:  	S(	t(90,8),	t(98,7),	t(108,1),	t(116,2),	t(125,14), 	t(133,13), 	t(143,8), 	t(151,7), 	t(160,3), 	t(169,2), 	t(178,13),	t(186,12)),
-		till: 	S(	t(95,13),	t(104,6),	t(113,2),	t(122,1),	t(130,13), 	t(139,11), 	t(148,8), 	t(157,5), 	t(166,3), 	t(175,0), 	t(183,14),	t(192,12)),
-		voice: 	@voice_high[1],
-		voice_2: @voice_mid[1],
-		pitch: 	 R(S(4, 3, 2, 1, 0)),
-		pitch_2: R(S(3, 1, 0, 1))
-
-		theme Theme_3,
-		at:		S(	t(96,8),	t(106,3),	t(114,2),	t(123,14),	t(131,13),	t(141,8),	t(149,8),	t(159,3),	t(167,3),	t(176,14)),
-		till: 	S(	t(102,7),	t(111,4),	t(120,2),	t(128,15),	t(137,12),	t(146,10),	t(155,7),	t(164,3),	t(173,1),	t(181,14)),
-		voice: 	@voice_high[2],
-		voice_2: @voice_mid[2],
-		pitch: 	 R(S(3, 2, 1, 0)),
-		pitch_2: R(S(1, 3))
-
-		theme Theme_3,
-		at:		S(	t(100,10),	t(110,5),	t(118,4),	t(128,0),	t(135,15),	t(145,11),	t(153,10),	t(163,5), 	t(171,5), 	t(181,0)),
-		till: 	S(	t(106,9),	t(115,6),	t(124,4),	t(133,1),	t(141,14),	t(150,12),	t(159,9), 	t(168,5), 	t(177,3), 	t(186,0)),
-		voice: 	@voice_high[3],
-		voice_2: @voice_mid[3],
-		pitch: 	 R(S(0, 1)),
-		pitch_2: R(S(0, 3, 1))
 
 		# TODO recortar centrifugado
 
