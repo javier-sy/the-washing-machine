@@ -304,11 +304,11 @@ def score
 			  	S(-t(1,8),	-t(1,8),	-t(1,4),	-t(1,4),	-t(1,0),	-t(1,0),	-t(0,8),	-t(0,8),	-t(1,8),	-t(1,8),  	-t(1,8)),
 
 		voice_1: @voice_low[1], 
-		pitch_1: R(S(-48, -46, -44, -42)),
+		pitch_1: S(-48, -46, -44, -42).repeat,
 
 		voice_2: @voice_low[0],
-		pitch_2: R(S(24, 23, 22, 21)),
-		enable_2: SEQ(R(S(true), times: 3), R(S(false))),
+		pitch_2: S(24, 23, 22, 21).repeat,
+		enable_2: S(true).repeat(3).after(S(false).repeat),
 
 		pre_offset_1: t(1,8),
 		post_offset_1: t(0,8),
@@ -330,13 +330,13 @@ def score
 			@voice_mid[3].input_channel = 4
 			@voice_high[3].input_channel = 4
 
-			chords = E(S(:II, :III, :VI, :IV, :III, :VI, :II, :III, :VI, :IV, :V, :I)) { 
+			chords = S(:II, :III, :VI, :IV, :III, :VI, :II, :III, :VI, :IV, :V, :I).eval { 
 				|grade| chord = Musa::Chord(grade, scale: @scale, grades: 4).pitches; log "chord grade #{grade} = #{chord}"; chord }
 
-			hash_chords = HH(chords, keys: [:a, :b, :c, :d])
+			hash_chords = chords.hashify :a, :b, :c, :d
 
-			@series = SPLIT hash_chords
-			@series_2 = SPLIT SHIFT(hash_chords.duplicate, shift: -1)
+			@series = hash_chords.split master: :d
+			@series_2 = hash_chords.duplicate.shift(-1).split master: :d
 
 			theme Theme_3,
 			at:		S(	t(82,7), 	t(94,13), 	t(102,12), 	t(112,7), 	t(120,6), 	t(130,2), 	t(138,1), 	t(147,13), 	t(155,11), 	t(165,7),	t(173,6),	t(183,2)),
