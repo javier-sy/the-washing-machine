@@ -79,10 +79,6 @@ class Theme_3 < Musa::Theme
 
 		move_vol_twice @voice, to: -3, till: at + third, wait_duration: third, to_2: -40, till_2: till + @@OFFSET
 
-		self.at at + third do
-			move_pitch_forth_and_back @voice, to:  s(24 - pitch_2), till: at + 2*third, back_at: at + 2*third + t(0,8)
-		end
-
 		if next_position
 			delta = (next_position - till)/8
 			self.at till - delta do
@@ -335,7 +331,7 @@ def score
 			chords = S(
 				Musa::Chord(:II, 				scale: @scale, 				duplicate: 	{ position: 0, octave: 1 } ),
 				Musa::Chord(:VI, 				scale: @scale,	octave: -1, duplicate: 	{ position: 0, octave: 1 } ),
-				Musa::Chord(:III,				scale: @scale, 				duplicate: 	{ position: 0, octave: 1 },
+				Musa::Chord(:III,				scale: @scale, 				duplicate: 	{ position: 0, octave: 2 },
 																				move:   { voice: 2, octave: 0 } ),
 				Musa::Chord(:III,	grades: 4,	scale: @scale, 					move: [	{ voice: 2, octave: -1 },
 																						{ voice: 3, octave: -1 } ]),
@@ -343,21 +339,20 @@ def score
 
 				Musa::Chord(:IV,	grades: 4,	scale: @scale, 	octave: -1,		move: [ { voice: 0, octave: 1 },
 																						{ voice: 2, octave: 1 } ]),
-				Musa::Chord(:III,				scale: @scale, 				duplicate: 	{ position: 0, octave: 1 } ),
+				Musa::Chord(:III,				scale: @scale, 				duplicate: 	{ position: 0, octave: 2 } ),
 				Musa::Chord(:II,				scale: @scale, 				duplicate:  { position: 0, octave: 1 }),
 				Musa::Chord(:IV,				scale: @scale,	octave: -1,	duplicate: 	{ position: 2, octave: 1 },
 																				move: 	{ voice: 0, octave: 1 } ),
 
 
-				Musa::Chord(:II,	grades: 4,	scale: @scale, 					move: [ { voice: 0, octave: 1 },
+				Musa::Chord(:II,	grades: 4,	scale: @scale, 					move: [ { voice: 0, octave: 2 },
 																						{ voice: 3, octave: -1 } ] ),
 				Musa::Chord(:VII,	grades: 4,	scale: @scale, 	octave: -1,		move:   { voice: 1, octave: 1 } ),
 				Musa::Chord(:V,		grades: 4,	scale: @scale, 	octave: -1, 	move: [ { voice: 0, octave: 1 },
 																						{ voice: 3, octave: 0 } ] ),
 				Musa::Chord(:I, 				scale: @scale, 				duplicate: 	{ position: 0, octave: 2 }) ).eval { |chord| chord.pitches }
 
-
-			pp chords.to_a
+			pp chords.to_a; chords.restart
 			
 			hash_chords = chords.hashify :a, :b, :c, :d
 
