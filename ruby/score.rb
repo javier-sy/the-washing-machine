@@ -1,4 +1,5 @@
 require 'musa-dsl'
+require 'pp'
 
 require_relative 'abstraction'
 
@@ -72,7 +73,7 @@ class Theme_3 < Musa::Theme
 	def run(at:, pitch:, pitch_2:, till:, next_position:)
 		log "Theme_3: running at: #{at} till: #{till} pitch: #{pitch} pitch_2: #{pitch_2} next_position: #{next_position}"
 
-		@voice.pitch = s(24-pitch)
+		@voice.pitch = s(24 - pitch)
 
 		third = (till - at) / 3
 
@@ -136,7 +137,7 @@ def score
 		@all_voices.apply :vol=, -40
 		@all_voices.apply :pitch=, 0
 
-		@scale = Musa::Scales.get(:major).based_on_pitch 0
+		@scale = Musa::Scales.get(:major).based_on_pitch 3
 	end
 
 	ts.with do
@@ -316,6 +317,7 @@ def score
 		post_offset_2: t(0,4)
 
 		at 80 do
+
 			log
 
 			@voice_mid[0].input_channel = 1
@@ -330,9 +332,33 @@ def score
 			@voice_mid[3].input_channel = 4
 			@voice_high[3].input_channel = 4
 
-			chords = S(:II, :III, :VI, :IV, :III, :VI, :II, :III, :VI, :IV, :V, :I).eval { 
-				|grade| chord = Musa::Chord(grade, scale: @scale, grades: 4).pitches; log "chord grade #{grade} = #{chord}"; chord }
+			chords = S(
+				Musa::Chord(:II, 				scale: @scale, 				duplicate: 	{ position: 0, octave: 1 } ),
+				Musa::Chord(:VI, 				scale: @scale,	octave: -1, duplicate: 	{ position: 0, octave: 1 } ),
+				Musa::Chord(:III,				scale: @scale, 				duplicate: 	{ position: 0, octave: 1 },
+																				move:   { voice: 2, octave: 0 } ),
+				Musa::Chord(:III,	grades: 4,	scale: @scale, 					move: [	{ voice: 2, octave: -1 },
+																						{ voice: 3, octave: -1 } ]),
 
+
+				Musa::Chord(:IV,	grades: 4,	scale: @scale, 	octave: -1,		move: [ { voice: 0, octave: 1 },
+																						{ voice: 2, octave: 1 } ]),
+				Musa::Chord(:III,				scale: @scale, 				duplicate: 	{ position: 0, octave: 1 } ),
+				Musa::Chord(:II,				scale: @scale, 				duplicate:  { position: 0, octave: 1 }),
+				Musa::Chord(:IV,				scale: @scale,	octave: -1,	duplicate: 	{ position: 2, octave: 1 },
+																				move: 	{ voice: 0, octave: 1 } ),
+
+
+				Musa::Chord(:II,	grades: 4,	scale: @scale, 					move: [ { voice: 0, octave: 1 },
+																						{ voice: 3, octave: -1 } ] ),
+				Musa::Chord(:VII,	grades: 4,	scale: @scale, 	octave: -1,		move:   { voice: 1, octave: 1 } ),
+				Musa::Chord(:V,		grades: 4,	scale: @scale, 	octave: -1, 	move: [ { voice: 0, octave: 1 },
+																						{ voice: 3, octave: 0 } ] ),
+				Musa::Chord(:I, 				scale: @scale, 				duplicate: 	{ position: 0, octave: 2 }) ).eval { |chord| chord.pitches }
+
+
+			pp chords.to_a
+			
 			hash_chords = chords.hashify :a, :b, :c, :d
 
 			@series = hash_chords.split master: :d
@@ -343,32 +369,32 @@ def score
 			till: 	S(	t(90,16), 	t(99,13),	t(108,11),	t(117,7),	t(126,5),	t(135,3),	t(143,15),	t(152,13),	t(161,10),	t(170,7),	t(179,4),	t(188,3)),
 			voice: 	@voice_high[0],
 			voice_2: @voice_mid[0],
-			pitch: 	 @series[:d], # R(S(2, 1, 0)),
-			pitch_2: @series_2[:d] # R(S(5, 7, 3, 0, 4, 1))
+			pitch: 	 @series[:d],
+			pitch_2: @series_2[:d]
 
 			theme Theme_3,
 			at:  	S(	t(90,8),	t(98,7),	t(108,1),	t(116,2),	t(125,14), 	t(133,13), 	t(143,8), 	t(151,7), 	t(160,3), 	t(169,2), 	t(178,13),	t(186,12)),
 			till: 	S(	t(95,13),	t(104,6),	t(113,2),	t(122,1),	t(130,13), 	t(139,11), 	t(148,8), 	t(157,5), 	t(166,3), 	t(175,0), 	t(183,14),	t(192,12)),
 			voice: 	@voice_high[1],
 			voice_2: @voice_mid[1],
-			pitch: 	 @series[:c], # R(S(4, 3, 2, 1, 0)),
-			pitch_2: @series_2[:c] # R(S(3, 1, 0, 1))
+			pitch: 	 @series[:c],
+			pitch_2: @series_2[:c]
 
 			theme Theme_3,
 			at:		S(	t(96,8),	t(106,3),	t(114,2),	t(123,14),	t(131,13),	t(141,8),	t(149,8),	t(159,3),	t(167,3),	t(176,14)),
 			till: 	S(	t(102,7),	t(111,4),	t(120,2),	t(128,15),	t(137,12),	t(146,10),	t(155,7),	t(164,3),	t(173,1),	t(181,14)),
 			voice: 	@voice_high[2],
 			voice_2: @voice_mid[2],
-			pitch: 	 @series[:b], # R(S(3, 2, 1, 0)),
-			pitch_2: @series_2[:b] # R(S(1, 3))
+			pitch: 	 @series[:b],
+			pitch_2: @series_2[:b]
 
 			theme Theme_3,
 			at:		S(	t(100,10),	t(110,5),	t(118,4),	t(128,0),	t(135,15),	t(145,11),	t(153,10),	t(163,5), 	t(171,5), 	t(181,0)),
 			till: 	S(	t(106,9),	t(115,6),	t(124,4),	t(133,1),	t(141,14),	t(150,12),	t(159,9), 	t(168,5), 	t(177,3), 	t(186,0)),
 			voice: 	@voice_high[3],
 			voice_2: @voice_mid[3],
-			pitch: 	 @series[:a], # R(S(0, 1)),
-			pitch_2: @series_2[:a] # R(S(0, 3, 1))
+			pitch: 	 @series[:a],
+			pitch_2: @series_2[:a]
 		end
 
 		# TODO recortar centrifugado
