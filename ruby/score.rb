@@ -293,12 +293,11 @@ def score
 			move_vol_twice @voice_low[0], to: 6, till: t(66,8), wait_duration: -t(2,8), to_2: -40, till_2: t(69,14)
 		end
 
-		# TODO revisar wait_duration
 		theme Theme_2,
-		at:		S(t(69,14),	t(82,11), 	t(90,11), 	t(103,7), 	t(111,7), 	t(124,3), 	t(132,3), 	t(145,0), 	t(152,15), 	t(165,12), 	t(178,1)), 
-		till: 	S(t(78,12),	t(87,11), 	t(99,10),	t(108,8),	t(120,6),	t(129,3),	t(141,3),	t(150,0),	t(161,15),	t(174,4),	t(183,1)),
+		at:		S(t(69,14),	t(82,11), 	t(90,11), 	t(103,7), 	t(111,7), 	t(124,3), 	t(132,3), 	t(145,0), 	t(153,15)), 
+		till: 	S(t(78,12),	t(87,11), 	t(99,10),	t(108,8),	t(120,6),	t(129,3),	t(141,3),	t(150,0),	t(158,15)),
 		wait_duration:
-			  	S(-t(1,8),	-t(1,8),	-t(1,4),	-t(1,4),	-t(1,0),	-t(1,0),	-t(0,8),	-t(0,8),	-t(1,8),	-t(1,8),  	-t(1,8)),
+			  	S(-t(1,8),	-t(1,8),	-t(1,4),	-t(1,4),	-t(1,0),	-t(1,0),	-t(0,8),	-t(0,8),	-t(1,8)),
 
 		voice_1: @voice_low[1], 
 		pitch_1: S(-48, -46, -44, -42).repeat,
@@ -333,16 +332,8 @@ def score
 				Musa::Chord(:VI, 				scale: @scale,	octave: -1, duplicate: 	{ position: 0, octave: 1 } ),
 				Musa::Chord(:III,				scale: @scale, 				duplicate: 	{ position: 0, octave: 2 },
 																				move:   { voice: 2, octave: 0 } ),
-				Musa::Chord(:III,	grades: 4,	scale: @scale, 					move: [	{ voice: 2, octave: -1 },
-																						{ voice: 3, octave: -1 } ]),
-
-
 				Musa::Chord(:IV,	grades: 4,	scale: @scale, 	octave: -1,		move: [ { voice: 0, octave: 1 },
 																						{ voice: 2, octave: 1 } ]),
-				Musa::Chord(:III,				scale: @scale, 				duplicate: 	{ position: 0, octave: 2 } ),
-				Musa::Chord(:II,				scale: @scale, 				duplicate:  { position: 0, octave: 1 }),
-				Musa::Chord(:IV,				scale: @scale,	octave: -1,	duplicate: 	{ position: 2, octave: 1 },
-																				move: 	{ voice: 0, octave: 1 } ),
 
 
 				Musa::Chord(:II,	grades: 4,	scale: @scale, 					move: [ { voice: 0, octave: 2 },
@@ -360,39 +351,37 @@ def score
 			@series_2 = hash_chords.duplicate.shift(-1).split master: :d
 
 			theme Theme_3,
-			at:		S(	t(82,7), 	t(94,13), 	t(102,12), 	t(112,7), 	t(120,6), 	t(130,2), 	t(138,1), 	t(147,13), 	t(155,11), 	t(165,7),	t(173,6),	t(183,2)),
-			till: 	S(	t(90,16), 	t(99,13),	t(108,11),	t(117,7),	t(126,5),	t(135,3),	t(143,15),	t(152,13),	t(161,10),	t(170,7),	t(179,4),	t(188,3)),
+			at:		S(	t(82,7), 	t(94,13), 	t(102,12), 	t(112,7), 	t(120,6), 	t(130,2), 	t(138,1), 	t(147,13)),
+			till: 	S(	t(90,16), 	t(99,13),	t(108,11),	t(117,7),	t(126,5),	t(135,3),	t(143,15),	t(152,13)),
 			voice: 	@voice_high[0],
 			voice_2: @voice_mid[0],
 			pitch: 	 @series[:d],
 			pitch_2: @series_2[:d]
 
 			theme Theme_3,
-			at:  	S(	t(90,8),	t(98,7),	t(108,1),	t(116,2),	t(125,14), 	t(133,13), 	t(143,8), 	t(151,7), 	t(160,3), 	t(169,2), 	t(178,13),	t(186,12)),
-			till: 	S(	t(95,13),	t(104,6),	t(113,2),	t(122,1),	t(130,13), 	t(139,11), 	t(148,8), 	t(157,5), 	t(166,3), 	t(175,0), 	t(183,14),	t(192,12)),
+			at:  	S(	t(90,8),	t(98,7),	t(108,1),	t(116,2),	t(125,14), 	t(133,13), 	t(143,8), 	t(151,7)),
+			till: 	S(	t(95,13),	t(104,6),	t(113,2),	t(122,1),	t(130,13), 	t(139,11), 	t(148,8), 	t(157,5)),
 			voice: 	@voice_high[1],
 			voice_2: @voice_mid[1],
 			pitch: 	 @series[:c],
 			pitch_2: @series_2[:c]
 
 			theme Theme_3,
-			at:		S(	t(96,8),	t(106,3),	t(114,2),	t(123,14),	t(131,13),	t(141,8),	t(149,8),	t(159,3),	t(167,3),	t(176,14)),
-			till: 	S(	t(102,7),	t(111,4),	t(120,2),	t(128,15),	t(137,12),	t(146,10),	t(155,7),	t(164,3),	t(173,1),	t(181,14)),
+			at:		S(	t(96,8),	t(106,3),	t(114,2),	t(123,14),	t(131,13),	t(141,8)),
+			till: 	S(	t(102,7),	t(111,4),	t(120,2),	t(128,15),	t(137,12),	t(146,10)),
 			voice: 	@voice_high[2],
 			voice_2: @voice_mid[2],
 			pitch: 	 @series[:b],
 			pitch_2: @series_2[:b]
 
 			theme Theme_3,
-			at:		S(	t(100,10),	t(110,5),	t(118,4),	t(128,0),	t(135,15),	t(145,11),	t(153,10),	t(163,5), 	t(171,5), 	t(181,0)),
-			till: 	S(	t(106,9),	t(115,6),	t(124,4),	t(133,1),	t(141,14),	t(150,12),	t(159,9), 	t(168,5), 	t(177,3), 	t(186,0)),
+			at:		S(	t(100,10),	t(110,5),	t(118,4),	t(128,0),	t(135,15),	t(145,11)),
+			till: 	S(	t(106,9),	t(115,6),	t(124,4),	t(133,1),	t(141,14),	t(150,12)),
 			voice: 	@voice_high[3],
 			voice_2: @voice_mid[3],
 			pitch: 	 @series[:a],
 			pitch_2: @series_2[:a]
 		end
-
-		# TODO recortar centrifugado
 
 	end
 end
