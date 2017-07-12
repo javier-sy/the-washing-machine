@@ -286,7 +286,7 @@ def score
 		end
 
 		#
-		#
+		# Zona de "acordes"
 		#
 
 		at t(61,15), debug: @debug_at do
@@ -315,17 +315,9 @@ def score
 
 			log
 
-			@voice_mid[0].input_channel = 1
-			@voice_high[0].input_channel = 1
-
-			@voice_mid[1].input_channel = 2
-			@voice_high[1].input_channel = 2
-
-			@voice_mid[2].input_channel = 3
-			@voice_high[2].input_channel = 3
-
-			@voice_mid[3].input_channel = 4
-			@voice_high[3].input_channel = 4
+			4.times do |i|
+				@voice_mid[i].input_channel = @voice_high[i].input_channel = i + 1
+			end
 
 			chords = S(
 				Musa::Chord(:II, 				scale: @scale, 				duplicate: 	{ position: 0, octave: 1 } ),
@@ -343,7 +335,7 @@ def score
 																						{ voice: 3, octave: 0 } ] ),
 				Musa::Chord(:I, 				scale: @scale, 				duplicate: 	{ position: 0, octave: 2 }) ).eval { |chord| chord.pitches }
 
-			pp chords.to_a; chords.restart
+			# pp chords.to_a; chords.restart
 			
 			hash_chords = chords.hashify :a, :b, :c, :d
 
@@ -382,6 +374,104 @@ def score
 			pitch: 	 @series[:a],
 			pitch_2: @series_2[:a]
 		end
+
+		#
+		# Centrifugado
+		#
+
+		at t(158,0) do
+			4.times do |i|
+				@voice_mid[i].input_channel = @voice_high[i].input_channel = 0
+			end
+		end
+
+		at t(160,2) do
+
+
+
+		end
+
+		at t(209,0) do # SI
+
+			@voice_low[1].set vol: 0, pitch: s(24)
+
+			@voice_mid[0].set vol: 0, pitch: s(24)
+			@voice_mid[1].set vol: 0, pitch: s(24)
+
+			@voice_high[0].set vol: 0, pitch: s(24)
+			@voice_high[1].set vol: 0, pitch: s(24)
+		end
+
+		at t(214,0) do # SI
+
+			@voice_low[1].set vol: 0, pitch: s(24)
+
+			@voice_mid[0].set vol: 0, pitch: s(24)
+			@voice_mid[1].set vol: 0, pitch: s(17)
+
+			@voice_high[0].set vol: 0, pitch: s(24)
+			@voice_high[1].set vol: 0, pitch: s(17)
+		end
+
+		at t(216,0) do # SI
+
+			@voice_low[1].set vol: 0, pitch: s(22)
+
+			@voice_mid[0].set vol: 0, pitch: s(24)
+			@voice_mid[1].set vol: 0, pitch: s(20)
+
+			@voice_high[0].set vol: 0, pitch: s(24)
+			@voice_high[1].set vol: 0, pitch: s(20)
+		end
+
+		at t(218,0) do # SI
+
+			@voice_low[1].set vol: 0, pitch: s(22)
+
+			@voice_mid[0].set vol: 0, pitch: s(22)
+			@voice_mid[1].set vol: 0, pitch: s(20)
+
+			@voice_high[0].set vol: 0, pitch: s(22)
+			@voice_high[1].set vol: 0, pitch: s(20)
+		end
+
+		at t(220,0) do # SI
+
+			@voice_low[1].set vol: 0, pitch: s(22)
+
+			@voice_mid[0].set vol: 0, pitch: s(20)
+			@voice_mid[1].set vol: 0, pitch: s(20)
+
+			@voice_high[0].set vol: 0, pitch: s(20)
+			@voice_high[1].set vol: 0, pitch: s(20)
+		end
+
+		at t(222,0) do # SI
+
+			@voice_low[1].set vol: 0, pitch: s(22)
+
+			@voice_mid[0].set vol: 0, pitch: s(24)
+			@voice_mid[1].set vol: 0, pitch: s(20)
+
+			@voice_high[0].set vol: 0, pitch: s(20)
+			@voice_high[1].set vol: 0, pitch: s(24)
+		end
+
+		at t(224,0) do # SI
+
+			@voice_low[1].set vol: 0, pitch: s(24)
+
+			@voice_mid[0].set vol: 0, pitch: s(24)
+			@voice_mid[1].set vol: 0, pitch: s(24)
+
+			@voice_high[0].set vol: 0, pitch: s(24)
+			@voice_high[1].set vol: 0, pitch: s(24)
+		end
+
+		#
+		# Pitidos de finalización
+		#
+
 
 	end
 end
