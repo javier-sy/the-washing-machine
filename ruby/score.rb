@@ -379,94 +379,134 @@ def score
 		# Centrifugado
 		#
 
-		at t(158,0) do
-			4.times do |i|
-				@voice_mid[i].input_channel = @voice_high[i].input_channel = 0
+		at t(159,8) do
+
+			@all_voices.apply :vol=, -40
+
+			@end_voices = [ @voice_low[1], @voice_mid[0], @voice_mid[1], @voice_high[0], @voice_high[1] ]
+
+			@end_voices.each { |v| v.input_channel = 0 }
+
+			@base = S(	[24, 24, 24, 24, 24],
+						[24, 24, 17, 24, 17],
+						[22, 24, 20, 24, 20],
+						[22, 22, 20, 22, 20],
+						[22, 20, 20, 20, 20],
+						[22, 24, 20, 20, 24],
+						[22, 20, 20, 24, 20],
+						[22, 24, 20, 20, 24],
+						[24, 24, 24, 24, 24] )
+
+			@series = @base.hashify(:low, :mid1, :mid2, :high1, :high2).split
+
+			# tramo A
+
+			@end_voices.apply :pitch=, @base.next_value.collect { |p| s(p) }
+
+			@start = t(159,8)
+			finish = t(177,15)
+			duration =  finish - @start 
+			@lapsus = duration / 8
+
+			@end_voices.each_index do |i| 
+				at(@start + i * @lapsus) { move_vol @end_voices[i], to: -3, till: @start + (i+2) * @lapsus }
 			end
+
+			# tramo B
+
+			at t(178,10) do
+				chord = @base.next_value
+				
+				log "chord = #{chord}"
+
+				@end_voices.apply :pitch=, chord.collect { |p| s(p) }
+			end
+
+			# tramo C
+
+			at t(194,0) do
+				chord = @base.next_value
+				
+				log "chord = #{chord}"
+
+				@end_voices.apply :pitch=, chord.collect { |p| s(p) }
+			end
+
+			at t(201,0) do
+				chord = @base.next_value
+				
+				log "chord = #{chord}"
+
+				@end_voices.apply :pitch=, chord.collect { |p| s(p) }
+			end
+
+			# tramo D
+
+			at t(205,0) do
+				chord = @base.next_value
+				
+				log "chord = #{chord}"
+
+				@end_voices.apply :pitch=, chord.collect { |p| s(p) }
+			end
+
+			# tramo E 
+
+			at t(215,0) do
+				chord = @base.next_value
+				
+				log "chord = #{chord}"
+
+				@end_voices.apply :pitch=, chord.collect { |p| s(p) }
+			end
+
+			at t(219,0) do
+				chord = @base.next_value
+				
+				log "chord = #{chord}"
+
+				@end_voices.apply :pitch=, chord.collect { |p| s(p) }
+			end
+
+			at t(223,0) do
+				chord = @base.next_value
+				
+				log "chord = #{chord}"
+
+				@end_voices.apply :pitch=, chord.collect { |p| s(p) }
+			end
+
+			# tramo E'
+
+			# recortarlo???? ponerlo a vol 0 e ir jugando a subir y bajar vol sobre un par de acordes????
+
+			at t(227,0) do
+				chord = @base.next_value
+				
+				log "chord = #{chord}"
+
+				@end_voices.apply :pitch=, chord.collect { |p| s(p) }
+
+				# AQUI HAY QUE HACER MAS COSAS
+			end
+
+			# tramo F
+
+			at t(258,0) do
+				chord = @base.next_value
+				
+				log "next chord = #{chord}"
+
+				@all_voices.apply :vol=, -40
+			end
+
+
 		end
 
-		at t(160,2) do
 
 
 
-		end
 
-		at t(209,0) do # SI
-
-			@voice_low[1].set vol: 0, pitch: s(24)
-
-			@voice_mid[0].set vol: 0, pitch: s(24)
-			@voice_mid[1].set vol: 0, pitch: s(24)
-
-			@voice_high[0].set vol: 0, pitch: s(24)
-			@voice_high[1].set vol: 0, pitch: s(24)
-		end
-
-		at t(214,0) do # SI
-
-			@voice_low[1].set vol: 0, pitch: s(24)
-
-			@voice_mid[0].set vol: 0, pitch: s(24)
-			@voice_mid[1].set vol: 0, pitch: s(17)
-
-			@voice_high[0].set vol: 0, pitch: s(24)
-			@voice_high[1].set vol: 0, pitch: s(17)
-		end
-
-		at t(216,0) do # SI
-
-			@voice_low[1].set vol: 0, pitch: s(22)
-
-			@voice_mid[0].set vol: 0, pitch: s(24)
-			@voice_mid[1].set vol: 0, pitch: s(20)
-
-			@voice_high[0].set vol: 0, pitch: s(24)
-			@voice_high[1].set vol: 0, pitch: s(20)
-		end
-
-		at t(218,0) do # SI
-
-			@voice_low[1].set vol: 0, pitch: s(22)
-
-			@voice_mid[0].set vol: 0, pitch: s(22)
-			@voice_mid[1].set vol: 0, pitch: s(20)
-
-			@voice_high[0].set vol: 0, pitch: s(22)
-			@voice_high[1].set vol: 0, pitch: s(20)
-		end
-
-		at t(220,0) do # SI
-
-			@voice_low[1].set vol: 0, pitch: s(22)
-
-			@voice_mid[0].set vol: 0, pitch: s(20)
-			@voice_mid[1].set vol: 0, pitch: s(20)
-
-			@voice_high[0].set vol: 0, pitch: s(20)
-			@voice_high[1].set vol: 0, pitch: s(20)
-		end
-
-		at t(222,0) do # SI
-
-			@voice_low[1].set vol: 0, pitch: s(22)
-
-			@voice_mid[0].set vol: 0, pitch: s(24)
-			@voice_mid[1].set vol: 0, pitch: s(20)
-
-			@voice_high[0].set vol: 0, pitch: s(20)
-			@voice_high[1].set vol: 0, pitch: s(24)
-		end
-
-		at t(224,0) do # SI
-
-			@voice_low[1].set vol: 0, pitch: s(24)
-
-			@voice_mid[0].set vol: 0, pitch: s(24)
-			@voice_mid[1].set vol: 0, pitch: s(24)
-
-			@voice_high[0].set vol: 0, pitch: s(24)
-			@voice_high[1].set vol: 0, pitch: s(24)
-		end
 
 		#
 		# Pitidos de finalización
