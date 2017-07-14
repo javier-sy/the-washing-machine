@@ -379,29 +379,15 @@ def score
 		# Centrifugado
 		#
 
-		at t(159,8) do
+		at t(159,8), debug: @debug_at do
 
 			@all_voices.apply :vol=, -40
 
-			@end_voices = [ @voice_low[1], @voice_mid[0], @voice_mid[1], @voice_high[0], @voice_high[1] ]
+			@end_voices = [ @voice_low[0], @voice_mid[0], @voice_mid[1], @voice_high[0], @voice_high[1] ]
 
 			@end_voices.each { |v| v.input_channel = 0 }
 
-			@base = S(	[24, 24, 24, 24, 24],
-						[24, 24, 17, 24, 17],
-						[22, 24, 20, 24, 20],
-						[22, 22, 20, 22, 20],
-						[22, 20, 20, 20, 20],
-						[22, 24, 20, 20, 24],
-						[22, 20, 20, 24, 20],
-						[22, 24, 20, 20, 24],
-						[24, 24, 24, 24, 24] )
-
-			@series = @base.hashify(:low, :mid1, :mid2, :high1, :high2).split
-
 			# tramo A
-
-			@end_voices.apply :pitch=, @base.next_value.collect { |p| s(p) }
 
 			@start = t(159,8)
 			finish = t(177,15)
@@ -412,106 +398,49 @@ def score
 				at(@start + i * @lapsus) { move_vol @end_voices[i], to: -3, till: @start + (i+2) * @lapsus }
 			end
 
+											  @end_voices.apply :pitch=, [24, 24, 24, 24, 24].collect { |p| s(p) }		# ok
 			# tramo B
-
-			at t(178,10) do
-				chord = @base.next_value
-				
-				log "chord = #{chord}"
-
-				@end_voices.apply :pitch=, chord.collect { |p| s(p) }
-			end
-
+			at(t(178,12), debug: @debug_at)	{ @end_voices.apply :pitch=, [24, 24, 17, 24, 17].collect { |p| s(p) } }	# ok -
 			# tramo C
-
-			at t(194,0) do
-				chord = @base.next_value
-				
-				log "chord = #{chord}"
-
-				@end_voices.apply :pitch=, chord.collect { |p| s(p) }
-			end
-
-			at t(201,0) do
-				chord = @base.next_value
-				
-				log "chord = #{chord}"
-
-				@end_voices.apply :pitch=, chord.collect { |p| s(p) }
-			end
-
+			at(t(194,0), debug: @debug_at) 	{ @end_voices.apply :pitch=, [22, 24, 20, 24, 20].collect { |p| s(p) } }	# ok
+			at(t(201,0), debug: @debug_at) 	{ @end_voices.apply :pitch=, [22, 22, 20, 22, 20].collect { |p| s(p) } }	# ok
 			# tramo D
-
-			at t(205,0) do
-				chord = @base.next_value
-				
-				log "chord = #{chord}"
-
-				@end_voices.apply :pitch=, chord.collect { |p| s(p) }
-			end
-
+			at(t(205,0), debug: @debug_at) 	{ @end_voices.apply :pitch=, [22, 20, 20, 20, 20].collect { |p| s(p) } }	# ok +
 			# tramo E 
-
-			at t(215,0) do
-				chord = @base.next_value
-				
-				log "chord = #{chord}"
-
-				@end_voices.apply :pitch=, chord.collect { |p| s(p) }
-			end
-
-			at t(219,0) do
-				chord = @base.next_value
-				
-				log "chord = #{chord}"
-
-				@end_voices.apply :pitch=, chord.collect { |p| s(p) }
-			end
-
-			at t(223,0) do
-				chord = @base.next_value
-				
-				log "chord = #{chord}"
-
-				@end_voices.apply :pitch=, chord.collect { |p| s(p) }
-			end
-
-			# tramo E'
-
-			# recortarlo???? ponerlo a vol 0 e ir jugando a subir y bajar vol sobre un par de acordes????
-
-			at t(227,0) do
-				chord = @base.next_value
-				
-				log "chord = #{chord}"
-
-				@end_voices.apply :pitch=, chord.collect { |p| s(p) }
-
-				# AQUI HAY QUE HACER MAS COSAS
-			end
-
+			at(t(215,0), debug: @debug_at) 	{ @end_voices.apply :pitch=, [24, 24, 24, 24, 24].collect { |p| s(p) } }	# 
+			at(t(218,0), debug: @debug_at) 	{ @end_voices.apply :pitch=, [22, 20, 20, 20, 20].collect { |p| s(p) } }	# 
+			at(t(221,0), debug: @debug_at) 	{ @end_voices.apply :pitch=, [24, 24, 24, 24, 24].collect { |p| s(p) } }	# 
+			at(t(224,0), debug: @debug_at) 	{ @end_voices.apply :pitch=, [20, 20, 20, 20, 20].collect { |p| s(p) } }
 			# tramo F
-
-			at t(258,0) do
-				chord = @base.next_value
-				
-				log "next chord = #{chord}"
-
-				@all_voices.apply :vol=, -40
-			end
-
-
+			at(t(227,0), debug: @debug_at) 	{ @end_voices.apply :pitch=, [22, 20, 20, 20, 20].collect { |p| s(p) } }
+			at(t(233,0), debug: @debug_at) 	{ @end_voices.apply :pitch=, [24, 24, 17, 24, 17].collect { |p| s(p) } }
+			at(t(238,0), debug: @debug_at) 	{ @end_voices.apply :pitch=, [24, 24, 24, 24, 24].collect { |p| s(p) } }
 		end
 
-
-
-
-
+		at t(242,0), debug: @debug_at do
+			@voice_low[1].input_channel = 1
+			@voice_low[1].pitch = s(-48)
+			move_vol @voice_low[1], to: -3, till: t(259,0)
+		end
 
 		#
 		# Pitidos de finalización
 		#
 
+		at t(257,0) do
+			@end_voices.apply :vol=, -40
+			@voice_mid[0].pitch = 0
+			@voice_mid[0].vol = -3
+		end
 
+		at t(261,8) do
+			@voice_low[0].vol = -40
+		end
+
+		at(t(265,0), debug: @debug_at) do
+			@all_voices.each do |v|
+				move_vol v, to: -40, duration: t(1,0)
+			end
+		end
 	end
 end
