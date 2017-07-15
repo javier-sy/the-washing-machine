@@ -383,7 +383,7 @@ def score
 
 			@all_voices.apply :vol=, -40
 
-			@end_voices = [ @voice_low[0], @voice_mid[0], @voice_mid[1], @voice_high[0], @voice_high[1] ]
+			@end_voices = [ @voice_low[1], @voice_mid[0], @voice_mid[1], @voice_high[0], @voice_high[1] ]
 
 			@end_voices.each { |v| v.input_channel = 0 }
 
@@ -417,10 +417,16 @@ def score
 			at(t(238,0), debug: @debug_at) 	{ @end_voices.apply :pitch=, [24, 24, 24, 24, 24].collect { |p| s(p) } }
 		end
 
-		at t(242,0), debug: @debug_at do
-			@voice_low[1].input_channel = 1
-			@voice_low[1].pitch = s(-48)
-			move_vol @voice_low[1], to: -3, till: t(259,0)
+		at t(230,0), debug: @debug_at do
+			@voice_low[0].input_channel = 1
+			@voice_low[0].output_channel = 1
+			@voice_low[0].pitch = s(-48)
+			
+			move_vol @voice_low[0], to: -3, till: t(247,0)
+		end
+
+		at t(253,0), debug: @debug_at do
+			move_vol @voice_low[0], to: 3, till: t(261,0)
 		end
 
 		#
