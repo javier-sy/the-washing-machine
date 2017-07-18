@@ -70,14 +70,14 @@ class Theme_3 < Musa::Theme
 		p - @@OFFSET
 	end
 
-	def run(at:, pitch:, pitch_2:, till:, next_position:)
-		log "Theme_3: running at: #{at} till: #{till} pitch: #{pitch} pitch_2: #{pitch_2} next_position: #{next_position}"
+	def run(at:, pitch:, vol:, pitch_2:, till:, next_position:)
+		log "Theme_3: running at: #{at} till: #{till} pitch: #{pitch} vol: #{vol} pitch_2: #{pitch_2} next_position: #{next_position}"
 
 		@voice.pitch = s(24 - pitch)
 
 		third = (till - at) / 3
 
-		move_vol_twice @voice, to: -3, till: at + third, wait_duration: third, to_2: -40, till_2: till + @@OFFSET
+		move_vol_twice @voice, to: vol, till: at + third, wait_duration: third, to_2: -40, till_2: till + @@OFFSET
 
 		if next_position
 			delta = (next_position - till)/8
@@ -104,18 +104,18 @@ def score
 		@voice_mid = []
 		@voice_high = []
 		
-		@voice_low << voices.voice(index: 0, input_channel: 0, output_channel: 0, midi_channel: 0, cc_vol: 8, cc_wsize: 4, cc_pitch: 0)
-		@voice_low << voices.voice(index: 1, input_channel: 0, output_channel: 1, midi_channel: 0, cc_vol: 9, cc_wsize: 5, cc_pitch: 1)
+		@voice_low << voices.voice(name: "low 0", index: 0, input_channel: 0, output_channel: 0, midi_channel: 0, cc_vol: 8, cc_wsize: 4, cc_pitch: 0)
+		@voice_low << voices.voice(name: "low 1", index: 1, input_channel: 0, output_channel: 1, midi_channel: 0, cc_vol: 9, cc_wsize: 5, cc_pitch: 1)
 
-		@voice_mid << voices.voice(index: 2, input_channel: 0, output_channel: 2, midi_channel: 3, cc_vol: 8, cc_wsize: 4, cc_pitch: 0)
-		@voice_mid << voices.voice(index: 3, input_channel: 0, output_channel: 3, midi_channel: 3, cc_vol: 9, cc_wsize: 5, cc_pitch: 1)
-		@voice_mid << voices.voice(index: 4, input_channel: 0, output_channel: 4, midi_channel: 3, cc_vol: 10, cc_wsize: 6, cc_pitch: 2)
-		@voice_mid << voices.voice(index: 5, input_channel: 0, output_channel: 5, midi_channel: 3, cc_vol: 11, cc_wsize: 7, cc_pitch: 3)
+		@voice_mid << voices.voice(name: "mid 0", index: 2, input_channel: 0, output_channel: 2, midi_channel: 3, cc_vol: 8, cc_wsize: 4, cc_pitch: 0)
+		@voice_mid << voices.voice(name: "mid 1", index: 3, input_channel: 0, output_channel: 3, midi_channel: 3, cc_vol: 9, cc_wsize: 5, cc_pitch: 1)
+		@voice_mid << voices.voice(name: "mid 2", index: 4, input_channel: 0, output_channel: 4, midi_channel: 3, cc_vol: 10, cc_wsize: 6, cc_pitch: 2)
+		@voice_mid << voices.voice(name: "mid 3",index: 5, input_channel: 0, output_channel: 5, midi_channel: 3, cc_vol: 11, cc_wsize: 7, cc_pitch: 3)
 
-		@voice_high << voices.voice(index: 6, input_channel: 0, output_channel: 6, midi_channel: 5, cc_vol: 8, cc_wsize: 4, cc_pitch: 0)
-		@voice_high << voices.voice(index: 7, input_channel: 0, output_channel: 7, midi_channel: 5, cc_vol: 9, cc_wsize: 5, cc_pitch: 1)
-		@voice_high << voices.voice(index: 8, input_channel: 0, output_channel: 8, midi_channel: 5, cc_vol: 10, cc_wsize: 6, cc_pitch: 2)
-		@voice_high << voices.voice(index: 9, input_channel: 0, output_channel: 9, midi_channel: 5, cc_vol: 11, cc_wsize: 7, cc_pitch: 3)
+		@voice_high << voices.voice(name: "high 0", index: 6, input_channel: 0, output_channel: 6, midi_channel: 5, cc_vol: 8, cc_wsize: 4, cc_pitch: 0)
+		@voice_high << voices.voice(name: "high 1", index: 7, input_channel: 0, output_channel: 7, midi_channel: 5, cc_vol: 9, cc_wsize: 5, cc_pitch: 1)
+		@voice_high << voices.voice(name: "high 2", index: 8, input_channel: 0, output_channel: 8, midi_channel: 5, cc_vol: 10, cc_wsize: 6, cc_pitch: 2)
+		@voice_high << voices.voice(name: "high 3", index: 9, input_channel: 0, output_channel: 9, midi_channel: 5, cc_vol: 11, cc_wsize: 7, cc_pitch: 3)
 
 		@all_voices = @voice_low + @voice_mid + @voice_high
 
@@ -151,7 +151,7 @@ def score
 			@voice_low[0].vol = 0
 
 			@voice_mid[0].vol = -3
-			@voice_mid[1].vol = 0
+			@voice_mid[1].vol = 6
 
 			@voice_high[0].vol = 0
 		end
@@ -166,7 +166,7 @@ def score
 		till:	S(t(5,0), t(7,5), 	t(8,14), 	t(9,6), 	t(9,13))
 
 		at t(9,15), debug: @debug_at do
-			move_vol @voice_high[0], to: 0, till: 11
+			move_vol @voice_high[0], to: 12, till: 11
 			move_pitch @voice_high[0], to: s(11), till: t(11,12)
 		end
 
@@ -218,15 +218,17 @@ def score
 		end
 
 		at 27, debug: @debug_at do
-			move_vol @voice_mid[1], till: 30, to: -3
+			move_vol @voice_mid[1], till: 30, to: 0
 		end
 
 		at 31, debug: @debug_at do
 			@voice_high[0].pitch = s(16)
-			move_vol @voice_high[0], till: 34, to: 0
+			move_vol @voice_high[0], till: 34, to: 3
 		end
 
 		at 34.75, debug: @debug_at do
+			move_vol @voice_high[0], till: 37, to: 0
+
 			move_vol @voice_low[0], till: 37, to: -40
 			move_vol @voice_high[0], till: 37, to: -3
 
@@ -234,6 +236,7 @@ def score
 		end
 
 		at 37, debug: @debug_at do
+			@voice_mid[0].vol += 3
 			move_pitch_and_return @voice_mid[0], to: s(11), till: 38, return_at: t(40,0)
 		end
 
@@ -348,7 +351,8 @@ def score
 			voice: 	@voice_high[0],
 			voice_2: @voice_mid[0],
 			pitch: 	 @series[:d],
-			pitch_2: @series_2[:d]
+			pitch_2: @series_2[:d],
+			vol:   	 FOR(from: -18.0, to: 0.0, step: 2.25)
 
 			theme Theme_3,
 			at:  	S(	t(90,8),	t(98,7),	t(108,1),	t(116,2),	t(125,14), 	t(133,13), 	t(143,8), 	t(151,7)),
@@ -356,7 +360,8 @@ def score
 			voice: 	@voice_high[1],
 			voice_2: @voice_mid[1],
 			pitch: 	 @series[:c],
-			pitch_2: @series_2[:c]
+			pitch_2: @series_2[:c],
+			vol:   	 FOR(from: -18.0, to: 0.0, step: 2.25)
 
 			theme Theme_3,
 			at:		S(	t(96,8),	t(106,3),	t(114,2),	t(123,14),	t(131,13),	t(141,8)),
@@ -364,7 +369,9 @@ def score
 			voice: 	@voice_high[2],
 			voice_2: @voice_mid[2],
 			pitch: 	 @series[:b],
-			pitch_2: @series_2[:b]
+			pitch_2: @series_2[:b],
+			vol:   	 FOR(from: -15.0, to: 0.0, step: 2.5)
+
 
 			theme Theme_3,
 			at:		S(	t(100,10),	t(110,5),	t(118,4),	t(128,0),	t(135,15),	t(145,11)),
@@ -372,7 +379,8 @@ def score
 			voice: 	@voice_high[3],
 			voice_2: @voice_mid[3],
 			pitch: 	 @series[:a],
-			pitch_2: @series_2[:a]
+			pitch_2: @series_2[:a],
+			vol:   	 FOR(from: -15.0, to: 0.0, step: 2.5)
 		end
 
 		#
@@ -386,6 +394,8 @@ def score
 			@end_voices = [ @voice_low[1], @voice_mid[0], @voice_mid[1], @voice_high[0], @voice_high[1] ]
 
 			@end_voices.each { |v| v.input_channel = 0 }
+			@voice_mid[2].input_channel = 0
+
 
 			# tramo A
 
@@ -421,7 +431,7 @@ def score
 			@voice_low[0].input_channel = 1
 			@voice_low[0].output_channel = 1
 			@voice_low[0].pitch = s(-48)
-			
+
 			move_vol @voice_low[0], to: -3, till: t(247,0)
 		end
 
@@ -435,8 +445,8 @@ def score
 
 		at t(257,0) do
 			@end_voices.apply :vol=, -40
-			@voice_mid[0].pitch = 0
-			@voice_mid[0].vol = -3
+			@voice_mid[2].pitch = 0
+			@voice_mid[2].vol = -3
 		end
 
 		at t(261,8) do

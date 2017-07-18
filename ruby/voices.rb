@@ -50,10 +50,11 @@ class Voices
 		end
 	end
 
-	def voice(index:, midi_channel:, input_channel: 0, output_channel: 0, cc_vol:, cc_wsize:, cc_pitch:, silence_offset: -40)
+	def voice(name:, index:, midi_channel:, input_channel: 0, output_channel: 0, cc_vol:, cc_wsize:, cc_pitch:, silence_offset: -40)
 
 		voice = 
 			Voice.new(
+				name: name,
 				mirror_out: @mirror_out, output: @output, 
 				index: index, midi_channel: midi_channel, input_channel: input_channel, output_channel: output_channel, 
 				cc_vol: cc_vol, cc_wsize: cc_wsize, cc_pitch: cc_pitch, 
@@ -79,10 +80,11 @@ private
 
 class Voice
 
-	attr_reader :index, :midi_channel, :input_channel, :output_channel, :wsize, :pitch, :silence_offset
+	attr_reader :name, :index, :midi_channel, :input_channel, :output_channel, :wsize, :pitch, :silence_offset
 
-	def initialize(mirror_out: nil, output:, index:, midi_channel:, input_channel:, output_channel:, cc_vol:, cc_wsize:, cc_pitch:, wsize_base:, wsize_semitones:, silence_offset: -120)
+	def initialize(name:, mirror_out: nil, output:, index:, midi_channel:, input_channel:, output_channel:, cc_vol:, cc_wsize:, cc_pitch:, wsize_base:, wsize_semitones:, silence_offset: -120)
 
+		@name = name
 		@mirror_out = mirror_out
 		@output = output
 
