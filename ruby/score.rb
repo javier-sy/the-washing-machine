@@ -414,7 +414,7 @@ def score
 
 											  @end_voices.apply :pitch=, [24, 24, 24, 24, 24].collect { |p| s(p) }		# ok
 			# tramo B
-			at(t(178,12), debug: @debug_at)	{ @end_voices.apply :pitch=, [24, 24, 17, 24, 17].collect { |p| s(p) } }	# ok -
+			at(t(178,0), debug: @debug_at)	{ @end_voices.apply :pitch=, [24, 24, 17, 24, 17].collect { |p| s(p) } }	# ok -
 			# tramo C
 			at(t(194,0), debug: @debug_at) 	{ @end_voices.apply :pitch=, [22, 24, 20, 24, 20].collect { |p| s(p) } }	# ok
 			at(t(201,0), debug: @debug_at) 	{ @end_voices.apply :pitch=, [22, 22, 20, 22, 20].collect { |p| s(p) } }	# ok
