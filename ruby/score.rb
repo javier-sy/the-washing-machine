@@ -345,10 +345,6 @@ def score
 			@series = hash_chords.split master: :d
 			@series_2 = hash_chords.duplicate.shift(-1).split master: :d
 
-			puts "for = #{FOR(from: -18.0, to: 3.0, step: 3.0).to_a}"
-
-			puts "for = #{FOR(from: -15.0, to: 3.0, step: 3.0).to_a}"
-
 			theme Theme_3,
 			at:		S(	t(82,7), 	t(94,13), 	t(102,12), 	t(112,7), 	t(120,6), 	t(130,2), 	t(138,1), 	t(147,13)),
 			till: 	S(	t(90,16), 	t(99,13),	t(108,11),	t(117,7),	t(126,5),	t(135,3),	t(143,15),	t(152,13)),
@@ -356,7 +352,7 @@ def score
 			voice_2: @voice_mid[0],
 			pitch: 	 @series[:d],
 			pitch_2: @series_2[:d],
-			vol:   	 FOR(from: -18.0, to: 3.0, step: 3.0)
+			vol:   	 FOR(from: -10.0, to: 6.0, step: 2.0)
 
 			theme Theme_3,
 			at:  	S(	t(90,8),	t(98,7),	t(108,1),	t(116,2),	t(125,14), 	t(133,13), 	t(143,8), 	t(151,7)),
@@ -365,7 +361,7 @@ def score
 			voice_2: @voice_mid[1],
 			pitch: 	 @series[:c],
 			pitch_2: @series_2[:c],
-			vol:   	 FOR(from: -18.0, to: 3.0, step: 3.0)
+			vol:   	 FOR(from: -10.0, to: 6.0, step: 2.0)
 
 			theme Theme_3,
 			at:		S(	t(96,8),	t(106,3),	t(114,2),	t(123,14),	t(131,13),	t(141,8)),
@@ -374,7 +370,7 @@ def score
 			voice_2: @voice_mid[2],
 			pitch: 	 @series[:b],
 			pitch_2: @series_2[:b],
-			vol:   	 FOR(from: -12.0, to: 3.0, step: 3.0)
+			vol:   	 FOR(from: -6.0, to: 6.0, step: 2.0)
 
 
 			theme Theme_3,
@@ -384,7 +380,7 @@ def score
 			voice_2: @voice_mid[3],
 			pitch: 	 @series[:a],
 			pitch_2: @series_2[:a],
-			vol:   	 FOR(from: -12.0, to: 3.0, step: 3.0)
+			vol:   	 FOR(from: -6.0, to: 6.0, step: 2.0)
 		end
 
 		#
