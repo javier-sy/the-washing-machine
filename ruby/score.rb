@@ -5,6 +5,7 @@ require_relative 'abstraction'
 
 # Sincronización: En SuperCollider, DelayN.ar de entrada de 350 ms
 # Sincronización: En Live, Output MIDI Ruby Clock Sync Delay 170 ms
+# Cuidado: es necesario usar ffi-coremidi-0.3.9, no ffi-coremidi-0.4.1, porque se desincroniza (pierde ticks?)
 
 include Musa::Series
 
@@ -450,6 +451,7 @@ def score
 		end
 
 		at t(261,8) do
+			log "Se para todo!"
 			@voice_low[0].vol = -40
 		end
 

@@ -3,6 +3,9 @@ require 'osc-ruby'
 
 require_relative 'voices'
 
+
+# puts "Musa::version = #{Musa::VERSION}"
+
 @input = UniMIDI::Input.all.select { |x| x.name == 'Apple Inc. Driver IAC' }[1]
 @output = OSC::Client.new 'localhost', 57120
 
